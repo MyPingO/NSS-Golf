@@ -26,6 +26,7 @@ The project is a Flask application with the following structure:
     models.py
     routes.py
 README.md
+requirements.txt
 run.py
 ```
 
@@ -47,10 +48,11 @@ If you'd like to contribute to this project, you're more than welcome! Please fo
 1. **Fork the Repository:** Click the 'Fork' button at the top-right of this page to create a copy of this repository on your GitHub account.
 2. **Clone the Repository:** Clone the repository to your local machine.
 3. **Create a Branch:** Create a new branch to contain your changes.
-4. **Make Your Changes:** Update, fix, or add new features to the project.
-5. **Test Your Changes:** Make sure your changes are working correctly and don't introduce new bugs.
-6. **Push Your Changes:** Push your changes to your GitHub repository.
-7. **Submit a Pull Request:** From your repository, click 'New pull request' and submit it.
+4. **Install dependencies:** A requirements.txt file is provided, if you use pip, you can type ```pip install -r requirements.txt``` in the console.
+5. **Make Your Changes:** Update, fix, or add new features to the project.
+6. **Test Your Changes:** Make sure your changes are working correctly and don't introduce new bugs.
+7. **Push Your Changes:** Push your changes to your GitHub repository.
+8. **Submit a Pull Request:** From your repository, click 'New pull request' and submit it.
 
 Please ensure your code is clean, well-commented, and well tested.
 
