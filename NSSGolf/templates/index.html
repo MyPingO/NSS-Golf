@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1 class="mb-3" style="text-align: center;">Welcome to the Golf Image Gallery!</h1>
+<h1 class="mb-3" style="text-align: center;">Welcome to the NNS Golf Shots Gallery!</h1>
 <div class="row">
     {% for image in images %}
     <div class="col-md-4 mb-4">
@@ -14,7 +14,7 @@
                 {% if current_user.role_id == 2 %}
                 <form id="deleteForm{{ image.id }}" action="" method="post" class="d-inline">
                     <button type="button" class="btn btn-outline-danger float-end" data-bs-toggle="modal"
-                        data-bs-target="#deleteConfirmModal" data-img-id="{{ image.id }}">
+                        data-bs-target="#deleteConfirmModal" data-img-id="{{ image.id }}" id="delete{{ image.id }}">
                         <i class="bi bi-trash-fill"></i>
                     </button>
                 </form>
@@ -83,9 +83,9 @@
 
     deleteButtons.forEach(function(btn){
         btn.addEventListener('click', function(event){
-            imageIdToDelete = event.target.getAttribute('data-img-id'); // store the image id when a delete button is clicked
+            imageIdToDelete = event.currentTarget.getAttribute('data-img-id'); // store the image id when a delete button is clicked
         });
-    });
+    });    
 
     confirmDeleteBtn.onclick = function() {
         var deleteForm = document.getElementById('deleteForm' + imageIdToDelete);
