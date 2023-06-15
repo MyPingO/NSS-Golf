@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h1>About NSS Golf Perfect Shots Library</h1>
+
+  <p>Welcome to the NSS Golf Perfect Shots Library project! This is an open-source web application that allows users to view and share perfect score shots in NSS Golf. Perfect score shots are Hole in One (Par 3), Eagle (Par 4), and Albatross (Par 5). Users can view the images in a grid card format on the home page, or can search for specific conditions on the <a href="search">search page</a>. Every image can be clicked to view in a larger size and contains associated video links for further content. You can submit an image to the site to exapnd the library and it will appear on the site after an Admin has approved it. Admins have the ability to delete images if necessary.</p>
+
+  <h2>Usage Instructions</h2>
+
+  <ol>
+    <li><strong>Visit the Site:</strong> Go to <a href="https://www.nssgolfshots.com">nssgolfshots.com</a> in your web browser.</li>
+    <li><strong>Register/Log In:</strong> If you're a new user, register an account. If you're a returning user, you should be logged in automatically.</li>
+    <li><strong>Browse the Gallery:</strong> The home page is where you can see all the images uploaded to the site. Click on an image to view it in a larger size and see its associated video link (YouTube, Vimeo, etc.).</li>
+    <li><strong>Uploading an Image:</strong> If you are logged in, you can upload your own images. Each image requires a link to a video to verify the shot is as shown in the image. The image must show the swing of the shot and what the minimap looked like. When performing a swing, the game hides the minimap. You must edit the photo to include the minimap in the image. You will be asked to input the stats of the shot such as Wind Speed, Flag Position, etc. Answer correctly, otherwise, the image will not be accepted. After submitting your image, an Admin will review the submission and either accept or deny it.</li>
+    <li><strong>Delete an Image (Admins Only):</strong> If you're an admin, you can click the delete icon at the bottom of an image to remove it from the gallery. You'll be asked to confirm this action since it's irreversible.</li>
+  </ol>
+
+  <h2>For Developers</h2>
+
+  <h3>Project Structure</h3>
+
+  <p>The project is a Flask application with the following structure:</p>
+
+  <pre>
+    /NSSGolf
+        /static
+          /CSS
+            main.css
+          /images
+        /templates
+            admin.html
+            index.html
+            layout.html
+            login.html
+            register.html
+            search.html
+            pload.html
+        __init__.py
+        forms.py
+        views.py
+        models.py
+        routes.py
+  </pre>
+
+  <h3>Contribution Guidelines</h3>
+
+  <p>If you'd like to contribute to this project, you're more than welcome! Please follow these steps at <a href="https://github.com/MyPingO/NSS-Golf-Perfect-Shots-Library">our github page</a>:</p>
+
+  <ol>
+    <li><strong>Fork the Repository:</strong> Click the 'Fork' button at the top-right of this page to create a copy of this repository on your GitHub account.</li>
+    <li><strong>Clone the Repository:</strong> Clone the repository to your local machine.</li>
+    <li><strong>Create a Branch:</strong> Create a new branch to contain your changes.</li>
+    <li><strong>Install dependencies:</strong> A requirements.txt file is provided, if you use pip, you can type <code>pip install -r requirements.txt</code> in the console.</li>
+    <li><strong>Make Your Changes:</strong> Update, fix, or add new features to the project.</li>
+    <li><strong>Test Your Changes:</strong> Make sure your changes are working correctly and don't introduce new bugs.</li>
+    <li><strong>Push Your Changes:</strong> Push your changes to your GitHub repository.</li>
+    <li><strong>Submit a Pull Request:</strong> From your repository, click 'New pull request' and submit it.</li>
+  </ol>
+
+  <p>Please ensure your code is clean, well-commented, and well tested.</p>
+
+  <h3>Additional Information</h3>
+
+  <p>This project is built with Flask, a lightweight WSGI web application framework. It's designed to make getting started quick and easy, with the ability to scale up to complex applications. <a href="https://flask.palletsprojects.com/en/2.3.x/">Learn more about Flask</a>.</p>
+
+  <p>If you need further information or have any questions, please feel free to open an issue on this repository.</p>
+
+  <p>Thank you for your interest in our NSS Golf Perfect Shots Library project! We look forward to your contribution.</p>
+{% endblock %}

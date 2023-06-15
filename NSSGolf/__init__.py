@@ -34,15 +34,15 @@ from NSSGolf.models import User, Role, Image
 def load_user(id):
     return User.query.get(int(id))
 
-# Use an application context to create all tables
-if not Path('NSSGolf/' + database_name).exists():
-    with app.app_context():
-        db.create_all()
+with app.app_context():
+    db.create_all()
+    if not Role.query.filter_by(name='user').first():
         user_role = Role(id=1, name='user')
-        admin_role = Role(id=2, name='admin')
         db.session.add(user_role)
+    if not Role.query.filter_by(name='admin').first():
+        admin_role = Role(id=2, name='admin')
         db.session.add(admin_role)
-        db.session.commit()
-        print('Created Database!')
+    db.session.commit()
+    print('Created Database!')
 
 from NSSGolf import routes

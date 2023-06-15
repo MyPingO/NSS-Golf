@@ -1,6 +1,6 @@
 # NSS Golf Perfect Shots Library
 
-Welcome to the NSS Golf Perfect Shots Library project! This is an open-source web application that allows users to view and share stunning golf-related images. Users can view the images in an appealing card format, and admins can delete images from the gallery. Every image can be clicked to view in larger size and contains associated YouTube links for further content. Admins have the ability to delete images if necessary.
+Welcome to the NSS Golf Perfect Shots Library project! This is an open-source web application that allows users to view and share stunning golf-related images. Users can view the images in an appealing card format, and admins can delete images from the gallery. Every image can be clicked to view in larger size and contains associated vidoo links for further content. Admins have the ability to delete images if necessary.
 
 ## Project Structure
 
@@ -32,9 +32,9 @@ run.py
 
 ## Usage Instructions
 
-1. **Visit the Site:** Go to [project-URL] (still not made) in your web browser.
+1. **Visit the Site:** Go to nssgolfshots.com in your web browser.
 2. **Register/Log In:** If you're a new user, register an account. If you're a returning user you should be logged in automatically.
-3. **Browse the Gallery:** The home page is where you can see all the images uploaded to the site. Click on an image to view it in a larger size and see its associated YouTube link.
+3. **Browse the Gallery:** The home page is where you can see all the images uploaded to the site. Click on an image to view it in a larger size and see its associated video link (, Vimeo, etc.).
 4. **Uploading an Image:** If you are logged in, you can upload your own images. Each image requires a link to a video to verify the shot is as shown in the image.
     The image must show the swing of the shot and what the minimap looked like. When performing a swing, the game hides the minimap. You must edit the photo to include the minimap in the image.
     You will be asked to input the stats of the shot such as Wind Speed, Flag Position, etc. Answer correctly, otherwise the image will not be accepted.

@@ -1,6 +1,6 @@
 from NSSGolf import db
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 
 
 class Image(db.Model):
@@ -11,9 +11,14 @@ class Image(db.Model):
 
     hole_number = db.Column(db.Integer, nullable=False)
     wind_speed = db.Column(db.Integer, nullable=False)
+    wind_speed_units = db.Column(db.String(3), nullable=False)
     wind_direction = db.Column(db.String(2), nullable=False)
     flag_position = db.Column(db.String(10), nullable=False)
-    yard_distance = db.Column(db.Integer, nullable=False)
+    shot_distance = db.Column(db.Integer, nullable=False)
+    distance_units = db.Column(db.String(3), nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref='images', lazy=True)
 
     approved = db.Column(db.Boolean, default=False)
 

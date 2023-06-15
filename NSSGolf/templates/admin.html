@@ -5,10 +5,13 @@
         {% for image in images %}
         <div class="col-md-4 mb-4">
             <div class="card">
-                <img class="card-img-top" src="{{ url_for('uploaded_file', filename=image.img_file) }}" alt="{{ image.title }}">
+                <!-- Add a new data attribute for the image URL and img-trigger class -->
+                <img class="card-img-top img-trigger" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
+                    alt="{{ image.title }}" data-img-url="{{ url_for('uploaded_file', filename=image.img_file) }}"
+                    data-username="{{ image.user.username }}">
                 <div class="card-body">
-                    <h5 class="card-title">{{ image.title }}</h5>
-                    <p class="card-text">YouTube link: <a href="{{ image.youtube_link }}">{{ image.youtube_link }}</a></p>
+                    <h5 class="card-title">{{ image.title|safe }}</h5>
+                    <p class="card-text">Video link: <a href="{{ image.youtube_link }}">{{ image.youtube_link }}</a></p>
                     <form method="POST">
                         {{ form.csrf_token }}
                         {{ form.image_id(value=image.id, class="form-control d-none") }}  <!-- The d-none class makes this input invisible -->
@@ -28,4 +31,37 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Modal for Image Preview -->
+    <div class="modal fade" id="imageModal">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <!-- Modal body -->
+                <div class="modal-body" style="display: flex; justify-content: center;">
+                    <img id="modalImage" class="img-fluid" src="" alt="Image">
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer" id="modalFooter">
+                    <div id="uploadedBy" style="flex-grow: 1;"></div>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+    var modalImg = document.getElementById('modalImage');
+    var uploadedBy = document.getElementById('uploadedBy');
+    var imgTriggers = document.querySelectorAll('.img-trigger');
+
+    imgTriggers.forEach(function(img){
+        img.addEventListener('click', function(event){
+            modalImg.src = event.target.getAttribute('data-img-url');
+            uploadedBy.textContent = "Uploaded by: " + event.target.getAttribute('data-username');
+            imageModal.show();
+        });
+    });
+</script>
 {% endblock %}

@@ -1,8 +1,7 @@
-from flask import render_template, redirect, url_for, flash, request, send_from_directory, abort
+from flask import render_template, redirect, url_for, flash, request, send_from_directory, abort, Markup
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import os
 
 from NSSGolf import app, db
 from NSSGolf.forms import LoginForm, UploadForm, SearchForm, RegistrationForm, AdminForm
@@ -11,8 +10,11 @@ from NSSGolf.models import Image, User
 @app.route('/')
 def home():
     images = Image.query.filter_by(approved=True).all()
-    return render_template('index.html', images=images)
+    return render_template('index.html', images=images, user=current_user)
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -33,7 +35,6 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
-            flash('Logged in successfully.')
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password.')
@@ -45,15 +46,31 @@ def login():
 def upload():
     form = UploadForm()
     if form.validate_on_submit():
+        if form.wind_speed_units.data == 'MPH' and not 2 <= form.wind_speed.data <= 33:
+            flash('Invalid wind speed, must be between 2 and 33 MPH.', 'error')
+            return render_template('upload.html', form=form)
+        elif form.wind_speed_units.data == 'KM/H' and not 3 <= form.wind_speed.data <= 55:
+            flash('Invalid wind speed, must be between 3 and 55 KM/H.', 'error')
+            return render_template('upload.html', form=form)
+        elif form.wind_speed_units.data == 'm/s' and not 1 <= form.wind_speed.data <= 15:
+            flash('Invalid wind speed, must be between 1 and 15 m/s', 'error')
+            return render_template('upload.html', form=form)
+
+        if form.shot_distance.data <= 0:
+            flash('Invalid shot distance, must be greater than 0.', 'error')
+            return render_template('upload.html', form=form)
+
         image = form.image.data
         filename = secure_filename(image.filename)
         filepath = f"{app.config['UPLOAD_FOLDER']}/{filename}"
         image.save(filepath)
-        image_title = f'Hole {form.hole_number.data} | {form.wind_speed.data}MPH Going {form.wind_direction.data} | {form.flag_position.data} Side Flag Position | {form.yard_distance.data}yd/{form.yard_distance.data * 3}ft Away'
+        #markup makes the <br> work in the HTML
+        image_title = Markup(f'-Hole {form.hole_number.data}<br>-{form.wind_speed.data}{form.wind_speed_units.data.upper()} Wind Going {form.wind_direction.data}<br>-{form.flag_position.data} Side Flag Position<br>-Shot from {form.shot_distance.data}{form.distance_units.data} Away')
         new_image = Image(title=image_title, img_file=filename, youtube_link=form.youtube_link.data, 
-                          hole_number=form.hole_number.data, wind_speed=form.wind_speed.data, 
+                          hole_number=form.hole_number.data, wind_speed=form.wind_speed.data, wind_speed_units=form.wind_speed_units.data, 
                           wind_direction=form.wind_direction.data, flag_position=form.flag_position.data,
-                          yard_distance=form.yard_distance.data)
+                          shot_distance=form.shot_distance.data, distance_units=form.distance_units.data, 
+                          user_id=current_user.id)
         db.session.add(new_image)
         db.session.commit()
 
@@ -105,16 +122,29 @@ def admin():
 def search():
     form = SearchForm()
     if form.validate_on_submit():
+        if form.wind_speed_units.data == 'MPH' and not 2 <= form.wind_speed.data <= 33:
+            flash('Invalid wind speed, must be between 2 and 33 MPH.', 'error')
+            return render_template('upload.html', form=form)
+        elif form.wind_speed_units.data == 'KM/H' and not 3 <= form.wind_speed.data <= 55:
+            flash('Invalid wind speed, must be between 3 and 55 KM/H.', 'error')
+            return render_template('upload.html', form=form)
+        elif form.wind_speed_units.data == 'm/s' and not 1 <= form.wind_speed.data <= 15:
+            flash('Invalid wind speed, must be between 1 and 15 m/s', 'error')
+            return render_template('upload.html', form=form)
+
+        if form.shot_distance.data <= 0:
+            flash('Invalid shot distance, must be greater than 0.', 'error')
+            return render_template('upload.html', form=form)
         # Extract data from form
         hole_number = form.hole_number.data
         wind_speed = form.wind_speed.data
-        yard_distance = form.yard_distance.data
+        shot_distance = form.shot_distance.data
         flag_position = form.flag_position.data
 
         # Search for images matching the criteria
         images = Image.query.filter_by(hole_number=hole_number, 
                                         wind_speed=wind_speed, 
-                                        yard_distance=yard_distance, 
+                                        shot_distance=shot_distance, 
                                         flag_position=flag_position, 
                                         approved=True).all()  # Only approved images
         if (len(images) == 0):

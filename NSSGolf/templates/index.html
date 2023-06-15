@@ -1,16 +1,37 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1 class="mb-3" style="text-align: center;">Welcome to the NNS Golf Shots Gallery!</h1>
+{% if user.is_authenticated %}
+<h1 class="mb-3" style="text-align: center;">Welcome {{ user.username }}, to the NNS Golf Shots Library!</h1>
+{% else %}
+<h1 class="mb-3" style="text-align: center;">Welcome to the NNS Golf Shots Library!</h1>
+{% endif %}
+
 <div class="row">
+    {% if images|length == 0 %}
+    <div class="text-center row" style="display: flex; justify-content: center;">
+        <div class="alert alert-light col-8" role="alert">
+            <h4 class="alert-heading">No images found!</h4>
+            It's looking a little empty, be the first to <a href="upload">upload something!</a>
+        </div>
+    </div>
+    {% endif %}
     {% for image in images %}
     <div class="col-md-4 mb-4">
         <div class="card">
             <!-- Add a new data attribute for the image URL -->
-            <img class="card-img-top img-trigger h-250" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
-                alt="{{ image.title }}" data-img-url="{{ url_for('uploaded_file', filename=image.img_file) }}">
+            <img class="card-img-top img-trigger" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
+                alt="{{ image.title }}" data-img-url="{{ url_for('uploaded_file', filename=image.img_file) }}"
+                data-username="{{ image.user.username }}">
             <div class="card-body">
-                <h5 class="card-title">{{ image.title }}</h5>
-                <p class="card-text">Video link: <a href="{{ image.youtube_link }}">{{ image.youtube_link }}</a></p>
+                <!-- 
+                    safe filter is used to prevent Jinja from escaping HTML tags
+                    <br> in this case will be rendered as a line break instead of a string
+                    look at upload() in the backend routes to see why this is needed
+                 -->
+                <h5 class="card-title">{{ image.title|safe }}</h5>
+                <p class="card-text">
+                    <a href="{{ image.youtube_link }}" target="_blank"><strong>Check out the video!</strong></a>
+                </p>
                 {% if current_user.role_id == 2 %}
                 <form id="deleteForm{{ image.id }}" action="" method="post" class="d-inline">
                     <button type="button" class="btn btn-outline-danger float-end" data-bs-toggle="modal"
@@ -19,6 +40,9 @@
                     </button>
                 </form>
                 {% endif %}
+            </div>
+            <div class="card-footer">
+                Uploaded by: {{ image.user.username }}
             </div>
         </div>
     </div>
@@ -34,7 +58,8 @@
                 <img id="modalImage" class="img-fluid" src="" alt="Image">
             </div>
             <!-- Modal footer -->
-            <div class="modal-footer">
+            <div class="modal-footer" id="modalFooter">
+                <div id="uploadedBy" style="flex-grow: 1;"></div>
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -68,6 +93,7 @@
     var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
     var deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
     var modalImg = document.getElementById('modalImage');
+    var uploadedBy = document.getElementById('uploadedBy');
     var imgTriggers = document.querySelectorAll('.img-trigger');
     var deleteButtons = document.querySelectorAll('[data-bs-target="#deleteConfirmModal"]');
     var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
@@ -77,6 +103,7 @@
     imgTriggers.forEach(function(img){
         img.addEventListener('click', function(event){
             modalImg.src = event.target.getAttribute('data-img-url');
+            uploadedBy.textContent = "Uploaded by: " + event.target.getAttribute('data-username');
             imageModal.show();
         });
     });
