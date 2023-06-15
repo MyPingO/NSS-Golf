@@ -1,0 +1,105 @@
+/* main.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    margin-right: 15px;
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: #ddd;
+}
+
+main {
+    margin: 15px;
+    flex: 1;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+
+form {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    margin-top: 10px;
+}
+
+form input[type="text"],
+form input[type="password"],
+form select {
+    width: 100%;
+    padding: 5px;
+}
+
+form input[type="submit"] {
+    margin-top: 10px;
+}
+
+ul {
+    list-style: none;
+}
+
+ul.flashes {
+    list-style: none;
+    padding: 0;
+}
+
+ul.flashes li {
+    background-color: #ff0;
+    color: #333;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.image-container h2 {
+    margin: 0;
+}
+
+.image-container p {
+    margin: 0;
+}
+
+.grid-image {
+    width: 320px;
+    height: 240px;
+    object-fit: contain;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 50px;
+}
+
+
+
+

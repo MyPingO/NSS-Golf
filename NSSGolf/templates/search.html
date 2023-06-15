@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h2 style="text-align: center;">Search</h2>
+    <div class="row justify-content-center">
+        <div class="col-sm-6">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.hole_number.label }} {{ form.hole_number(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.wind_speed.label }} {{ form.wind_speed(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.wind_direction.label }} {{ form.wind_direction(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.flag_position.label }} {{ form.flag_position(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.yard_distance.label }} {{ form.yard_distance(class="form-control") }}
+                </div>
+                {{ form.submit(class="btn btn-primary w-100") }}
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        {% if form.validate_on_submit() %}
+            {% for image in images %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img class="card-img-top" src="{{ url_for('uploaded_file', filename=image.img_file) }}" alt="{{ image.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ image.title }}</h5>
+                            <p class="card-text">YouTube link: <a href="{{ image.youtube_link }}">{{ image.youtube_link }}</a></p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

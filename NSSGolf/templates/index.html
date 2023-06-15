@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1 class="mb-3" style="text-align: center;">Welcome to the Golf Image Gallery!</h1>
+<div class="row">
+    {% for image in images %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <!-- Add a new data attribute for the image URL -->
+            <img class="card-img-top img-trigger h-250" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
+                alt="{{ image.title }}" data-img-url="{{ url_for('uploaded_file', filename=image.img_file) }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ image.title }}</h5>
+                <p class="card-text">Video link: <a href="{{ image.youtube_link }}">{{ image.youtube_link }}</a></p>
+                {% if current_user.role_id == 2 %}
+                <form id="deleteForm{{ image.id }}" action="" method="post" class="d-inline">
+                    <button type="button" class="btn btn-outline-danger float-end" data-bs-toggle="modal"
+                        data-bs-target="#deleteConfirmModal" data-img-id="{{ image.id }}">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal for Image Preview -->
+<div class="modal fade" id="imageModal">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <!-- Modal body -->
+            <div class="modal-body" style="display: flex; justify-content: center;">
+                <img id="modalImage" class="img-fluid" src="" alt="Image">
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Confirm Delete -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this image?</p>
+                <p>This action is irreversible!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, cancel</button>
+                <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Yes, delete it</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+    var deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    var modalImg = document.getElementById('modalImage');
+    var imgTriggers = document.querySelectorAll('.img-trigger');
+    var deleteButtons = document.querySelectorAll('[data-bs-target="#deleteConfirmModal"]');
+    var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+    var imageIdToDelete;
+
+    imgTriggers.forEach(function(img){
+        img.addEventListener('click', function(event){
+            modalImg.src = event.target.getAttribute('data-img-url');
+            imageModal.show();
+        });
+    });
+
+    deleteButtons.forEach(function(btn){
+        btn.addEventListener('click', function(event){
+            imageIdToDelete = event.target.getAttribute('data-img-id'); // store the image id when a delete button is clicked
+        });
+    });
+
+    confirmDeleteBtn.onclick = function() {
+        var deleteForm = document.getElementById('deleteForm' + imageIdToDelete);
+        deleteForm.action = '/delete_image/' + imageIdToDelete;
+        deleteForm.submit();
+    };
+</script>
+{% endblock %}
