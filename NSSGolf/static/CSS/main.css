@@ -7,7 +7,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #424248;
+    background-color: #202c3a;
     color : rgb(229, 229, 229);
     display: flex;
     flex-direction: column;
@@ -16,7 +16,7 @@ body {
 }
 
 header {
-    background-color: #4b4c54;
+    background-color: #2f3b4c;
     color: white;
     padding: 10px;
     text-align: center;
@@ -113,7 +113,7 @@ img {
 }
 
 .card {
-    background-color: #39393c;
+    background-color: #2f3b4c;
     color: #fff;
 }
 .card-img-top {
@@ -121,7 +121,7 @@ img {
 }
 
 .modal-content {
-    background-color: #3d3d44;
+    background-color: #2f3b4c;
     color: #fff;
 }
 
