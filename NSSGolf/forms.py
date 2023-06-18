@@ -4,7 +4,7 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from flask_uploads import UploadSet, IMAGES
 from wtforms import StringField, SubmitField, BooleanField, PasswordField, FileField, HiddenField, RadioField, IntegerField, FloatField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, URL, ValidationError, NumberRange
-from NSSGolf.models import User
+from NSSGolf.models import User, Tutorial, Image, Role
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
@@ -27,7 +27,13 @@ class LoginForm(FlaskForm):
 
 images = UploadSet('images', IMAGES)
 
-class UploadForm(FlaskForm):
+class TutorialUploadForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(min=2, max=120)])
+    video_link = StringField('YouTube Link', validators=[DataRequired()])
+    category = SelectField('Category', choices = [('Putting','Putting'), ('Chipping','Chipping'), ('Strategies','Strategies'), ('Wind','Wind'), ('Terrain','Terrain'), ('Mechanics','Mechanics'),('Other','Other')], validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+class ShotUploadForm(FlaskForm):
     image = FileField('Image', validators=[FileRequired(), FileAllowed(images, 'Images only!')])
     youtube_link = StringField('YouTube Link')
     hole_number = IntegerField('Hole Number', validators=[DataRequired(), NumberRange(min=1, max=21, message='Hole number must be between 1 and 21.')])
@@ -39,7 +45,11 @@ class UploadForm(FlaskForm):
     distance_units = SelectField('Distance Unit', choices=[('yd','Yards'),('ft', 'Feet'),('m','Meters')], validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-class SearchForm(FlaskForm):
+class TutorialSearchForm(FlaskForm):
+    category = SelectField('Category', choices = [('Putting','Putting'), ('Chipping','Chipping'), ('Strategies','Strategies'), ('Wind','Wind'), ('Terrain','Terrain'), ('Mechanics','Mechanics'),('Other','Other')], validators=[DataRequired()])
+    submit = SubmitField('Search')
+
+class ShotSearchForm(FlaskForm):
     hole_number = IntegerField('Hole Number', validators=[DataRequired(), NumberRange(min=1, max=21, message='Hole number must be between 1 and 21.')])
     wind_speed = IntegerField('Wind Speed', validators=[DataRequired()])
     wind_direction = SelectField('Wind Direction', choices=[('North','North'),('South','South'),('East','East'),('West','West'),('North-East','North-East'),('North-West','North-West'),('South-East','South-East'),('South-West','South-West'),('Center','Center')], validators=[DataRequired()])
@@ -51,5 +61,6 @@ class SearchForm(FlaskForm):
 
 class AdminForm(FlaskForm):
     image_id = HiddenField('Image ID')
+    tutorial_id = HiddenField('Tutorial ID')
     action = SelectField('Action', choices=[('Approve', 'Approve'), ('Reject', 'Reject')], validators=[DataRequired()])
     submit = SubmitField('Submit')

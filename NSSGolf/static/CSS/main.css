@@ -12,6 +12,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    backface-visibility: hidden;
 }
 
 header {
@@ -30,6 +31,10 @@ nav a {
     color: white;
     margin-right: 15px;
     text-decoration: none;
+}
+
+.nav-link.u{
+    color: white
 }
 
 nav a:hover {

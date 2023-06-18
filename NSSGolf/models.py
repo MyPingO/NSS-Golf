@@ -3,6 +3,17 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
 
 
+class Tutorial(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(50), nullable=False)
+    video_link = db.Column(db.String(120), nullable=False)
+    category = db.Column(db.String(20), nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref='tutorials', lazy=True)
+
+    approved = db.Column(db.Boolean, default=False)
+
 class Image(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)

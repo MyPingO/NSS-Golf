@@ -34,7 +34,7 @@ run.py
 
 1. **Visit the Site:** Go to nssgolfshots.com in your web browser.
 2. **Register/Log In:** If you're a new user, register an account. If you're a returning user you should be logged in automatically.
-3. **Browse the Gallery:** The home page is where you can see all the images uploaded to the site.
+3. **Browse the Gallery:** The gallery page is where you can see all the images uploaded to the site.
 Click on an image to view it in a larger size. Each video has its associated video link (YouTube, Vimeo, etc.).
 4. **Uploading an Image:** If you are logged in, you can upload your own images. Each image requires a link to a video to verify the shot is as shown in the image.
     The image must show the swing of the shot and what the minimap looked like. When performing a swing, the game hides the minimap. You must edit the photo to include the minimap in the image.

@@ -1,74 +1,204 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2 style="text-align: center;">Search</h2>
+<div class="container">
     <div class="row justify-content-center">
-        <div class="col-sm-6">
+        <div class="col-lg-6">
+            <h2 style="text-align: center;">Search</h2>
+            <div class="content-section">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link u {{ 'active' if active_form=='shot' else '' }}"
+                            href="{{ url_for('search', form='shot') }}">Shot</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link u {{ 'active' if active_form=='tutorial' else '' }}"
+                            href="{{ url_for('search', form='tutorial') }}">Tutorial</a>
+                    </li>
+                </ul>
+
+                {% if active_form == 'shot' %}
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form_shot.hidden_tag() }}
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.hole_number.label }} {{ form_shot.hole_number(id="hole_number",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.flag_position.label }} {{ form_shot.flag_position(id="flag_position",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.wind_direction.label }} {{ form_shot.wind_direction(id="wind_direction",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.wind_speed.label }} {{ form_shot.wind_speed(id="wind_speed",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.wind_speed_units.label }} {{
+                                form_shot.wind_speed_units(id="wind_speed_units",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.shot_distance.label }} {{ form_shot.shot_distance(id="shot_distance",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.distance_units.label }} {{ form_shot.distance_units(id="distance_units",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        {{ form_shot.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- found images -->
+        <div class="row mt-4">
+            {% for image in images %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <!-- Add a new data attribute for the image URL -->
+                    <img class="card-img-top img-trigger" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
+                        alt="{{ image.title }}" data-img-url="{{ url_for('uploaded_file', filename=image.img_file) }}"
+                        data-username="{{ image.user.username }}">
+                    <div class="card-body">
+                        <!-- 
+                    safe filter is used to prevent Jinja from escaping HTML tags
+                    <br> in this case will be rendered as a line break instead of a string
+                    look at upload() in the backend routes to see why this is needed
+                 -->
+                        <h5 class="card-title">{{ image.title|safe }}</h5>
+                        <p class="card-text">
+                            <a href="{{ image.youtube_link }}" target="_blank"><strong>Check out the
+                                    video!</strong></a>
+                        </p>
+                        {% if current_user.role_id == 2 %}
+                        <form id="deleteForm{{ image.id }}" action="" method="post" class="d-inline">
+                            <button type="button" class="btn btn-outline-danger float-end" data-bs-toggle="modal"
+                                data-bs-target="#deleteConfirmModal" data-img-id="{{ image.id }}"
+                                id="delete{{ image.id }}">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        Uploaded by: {{ image.user.username }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Modal for Image Preview -->
+        <div class="modal fade" id="imageModal">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                    <!-- Modal body -->
+                    <div class="modal-body" style="display: flex; justify-content: center;">
+                        <img id="modalImage" class="img-fluid" src="" alt="Image">
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer" id="modalFooter">
+                        <div id="uploadedBy" style="flex-grow: 1;"></div>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Confirm Delete -->
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this image?</p>
+                        <p>This action is irreversible!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No,
+                            cancel</button>
+                        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Yes, delete
+                            it</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif active_form == 'tutorial' %}
+        <!-- Tutorial search form -->
+        <div id="tutorialForm">
             <form method="POST">
-                {{ form.hidden_tag() }}
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.hole_number.label }} {{ form.hole_number(id="hole_number", class="form-control") }}
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.flag_position.label }} {{ form.flag_position(id="flag_position",
-                            class="form-control") }}
-                        </div>
-                    </div>
+                {{ form_tutorial.hidden_tag() }}
+                <div class="form-group">
+                    {{ form_tutorial.category.label(class="form-control-label") }}
+                    {{ form_tutorial.category(class="form-control form-control-lg") }}
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.wind_direction.label }} {{ form.wind_direction(id="wind_direction",
-                            class="form-control") }}
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.wind_speed.label }} {{ form.wind_speed(id="wind_speed", class="form-control") }}
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.wind_speed_units.label }} {{ form.wind_speed_units(id="wind_speed_units",
-                            class="form-control") }}
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.shot_distance.label }} {{ form.shot_distance(id="shot_distance",
-                            class="form-control") }}
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.distance_units.label }} {{ form.distance_units(id="distance_units",
-                            class="form-control") }}
-                        </div>
-                    </div>
-                </div>
-                {{ form.submit(class="btn btn-primary w-100") }}
+                {{ form_tutorial.submit(class="btn btn-primary w-100") }}
             </form>
         </div>
-    </div>
-
-    <div class="row mt-4">
-        {% if form.validate_on_submit() %}
-            {% for image in images %}
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <img class="card-img-top" src="{{ url_for('uploaded_file', filename=image.img_file) }}" alt="{{ image.title }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ image.title }}</h5>
-                            <p class="card-text">Video link: <a href="{{ image.youtube_link }}">{{ image.youtube_link }}</a></p>
-                        </div>
-                    </div>
+        <!-- found tutorials -->
+        {% for tutorial in tutorials %}
+        <div class="tutorial-container">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ tutorial.title }}</h5>
+                    <strong>Category:</strong> {{ tutorial.category }} <br>
+                    <strong>Uploaded by:</strong> {{ tutorial.user.username }}
                 </div>
-            {% endfor %}
-        {% endif %}
+                <div class="card-footer">
+                    <a href="{{ tutorial.video_link }}" target="_blank" class="btn btn-primary">Watch Video</a>
+                </div>
+            </div>
+        </div>
+        <br>
+        {% endfor %}
     </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+    var modalImg = document.getElementById('modalImage');
+    var uploadedBy = document.getElementById('uploadedBy');
+    var imgTriggers = document.querySelectorAll('.img-trigger');
+
+    var imageIdToDelete;
+
+    imgTriggers.forEach(function (img) {
+        img.addEventListener('click', function (event) {
+            modalImg.src = event.target.getAttribute('data-img-url');
+            uploadedBy.textContent = "Uploaded by: " + event.target.getAttribute('data-username');
+            imageModal.show();
+        });
+    });
+</script>
 {% endblock %}

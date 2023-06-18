@@ -4,86 +4,149 @@
     <div class="row justify-content-center">
         <div class="col-lg-6">
             <h2 style="text-align: center;">Upload</h2>
-            <form method="POST" enctype="multipart/form-data">
-                {{ form.hidden_tag() }}
-                <div class="form-group">
-                    {{ form.image.label }} {{ form.image(id="image", accept="image/*", class="form-control-file") }}
-                </div>
-                <div class="form-group">
-                    {{ form.youtube_link.label }} {{ form.youtube_link(id="youtube_link", class="form-control") }}
-                </div>
+            <div class="content-section">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link u {{ 'active' if active_form=='shot' else '' }}"
+                            href="{{ url_for('upload', form='shot') }}">Shot</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link u {{ 'active' if active_form=='tutorial' else '' }}"
+                            href="{{ url_for('upload', form='tutorial') }}">Tutorial</a>
+                    </li>
+                </ul>
+                {% if active_form == 'shot' %}
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form_shot.hidden_tag() }}
+                    <div class="form-group">
+                        {{ form_shot.image.label }} {{ form_shot.image(id="image", accept="image/*",
+                        class="form-control-file")
+                        }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_shot.youtube_link.label }} {{ form_shot.youtube_link(id="youtube_link",
+                        class="form-control") }}
+                    </div>
 
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.hole_number.label }} {{ form.hole_number(id="hole_number", class="form-control") }}
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.hole_number.label }} {{ form_shot.hole_number(id="hole_number",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.flag_position.label }} {{ form_shot.flag_position(id="flag_position",
+                                class="form-control") }}
+                            </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.flag_position.label }} {{ form.flag_position(id="flag_position",
-                            class="form-control") }}
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.wind_direction.label }} {{ form_shot.wind_direction(id="wind_direction",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.wind_speed.label }} {{ form_shot.wind_speed(id="wind_speed",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.wind_speed_units.label }} {{
+                                form_shot.wind_speed_units(id="wind_speed_units",
+                                class="form-control") }}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.wind_direction.label }} {{ form.wind_direction(id="wind_direction",
-                            class="form-control") }}
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.shot_distance.label }} {{ form_shot.shot_distance(id="shot_distance",
+                                class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                {{ form_shot.distance_units.label }} {{ form_shot.distance_units(id="distance_units",
+                                class="form-control") }}
+                            </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.wind_speed.label }} {{ form.wind_speed(id="wind_speed", class="form-control") }}
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.wind_speed_units.label }} {{ form.wind_speed_units(id="wind_speed_units",
-                            class="form-control") }}
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.shot_distance.label }} {{ form.shot_distance(id="shot_distance",
-                            class="form-control") }}
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            {{ form.distance_units.label }} {{ form.distance_units(id="distance_units",
-                            class="form-control") }}
-                        </div>
-                    </div>
-                </div>
 
-                <div class="d-grid gap-2">
-                    {{ form.submit(class="btn btn-primary") }}
+                    <div class="d-grid gap-2">
+                        {{ form_shot.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+                <div class="row justify-content-center">
+                    <div class="">
+                        <div class="text-center">
+                            <b>Upload rules:</b>
+                            <p class="text-left d-inline-block text-start">
+                                1. Image must be a screenshot of the game in a 16:9 aspect ratio and in good quality.
+                                <br>
+                                2. Image must show the swing of the shot and what the minimap looked like. <br>
+                                <i>Note: The minimap is hidden when performing a swing. You must edit the photo to
+                                    include the
+                                    minimap in the
+                                    image. <br></i>
+                                4. The video link must be a link to a video on a public platform (YouTube, Vimeo, etc.)
+                                that
+                                verifies the shot shown in the image. <br>
+                                5. The stats of the shot must be entered correctly, otherwise, the image will not be
+                                accepted.
+                                <br>
+                                6. After submitting your image, an Admin will review the submission and either accept or
+                                deny
+                                it.
+                                <br>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </form>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="text-center">
-                <b>Upload rules:</b>
-                <p class="text-left d-inline-block text-start">
-                    1. Image must be a screenshot of the game in a 16:9 aspect ratio and in good quality. <br>
-                    2. Image must show the swing of the shot and what the minimap looked like. <br>
-                    <i>Note: The minimap is hidden when performing a swing. You must edit the photo to include the
-                        minimap in the
-                        image. <br></i>
-                    4. The video link must be a link to a video on a public platform (YouTube, Vimeo, etc.) that
-                    verifies the shot shown in the image. <br>
-                    5. The stats of the shot must be entered correctly, otherwise, the image will not be accepted. <br>
-                    6. After submitting your image, an Admin will review the submission and either accept or deny it.
-                    <br>
-                </p>
+                {% elif active_form == 'tutorial' %}
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form_tutorial.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <div class="form-group">
+                            {{ form_tutorial.title.label(class="form-control-label") }}
+                            {{ form_tutorial.title(class="form-control form-control-lg") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_tutorial.video_link.label(class="form-control-label") }}
+                            {{ form_tutorial.video_link(class="form-control form-control-lg") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_tutorial.category.label(class="form-control-label") }}
+                            {{ form_tutorial.category(class="form-control form-control-lg") }}
+                        </div>
+                    </fieldset>
+                    <div class="d-grid gap-2">
+                        {{ form_shot.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+                <div class="text-center">
+                    <b>Upload rules:</b>
+                    <p class="text-left d-inline-block text-start">
+                        1. Video must be a tutorial for NSS Golf and in decent quality. <br>
+                        2. The title of the tutorial must match or express the point of the tutorial. <br>
+                        3. The video link must be a link to a video on a public platform (YouTube, Vimeo, etc.) that
+                        teaches others of the category picked. <br>
+                        4. The category of the tutorial must be entered correctly, otherwise, the video will not be
+                        accepted. <br>
+                        5. After submitting your video, an Admin will review the submission and either accept or deny
+                        it.
+                        <br>
+                    </p>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}
