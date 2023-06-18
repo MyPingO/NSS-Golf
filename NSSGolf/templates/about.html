@@ -1,24 +1,24 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h1>About NSS Golf Perfect Shots Library</h1>
+<h1>About NSS Golf Perfect Shots Gallery</h1>
 
-<p>Welcome to the NSS Golf Perfect Shots Library project! This is an open-source web application that allows users to
+<p>Welcome to the NSS Golf Perfect Shots Gallery project! This is an open-source web application that allows users to
     view and share perfect score shots in NSS Golf. Perfect score shots are Hole in One (Par 3), Eagle (Par 4), and
     Albatross (Par 5). Users can view the images in a grid card format on the gallery page, or can search for specific
-    conditions on the <a href="search">search page</a>. Every image can be clicked to view in a larger size and contains
-    associated video links for further content. You can submit an image to the site to exapnd the library and it will
+    conditions on the <a href="search" target="_blank">search page</a>. Every image can be clicked to view in a larger size and contains
+    associated video links for further content. You can submit an image to the site to exapnd the gallery and it will
     appear on the site after an Admin has approved it. Admins have the ability to delete images if necessary.</p>
 
 <h2>Usage Instructions</h2>
 
 <ol>
-    <li><strong>Register/Log In:</strong> If you're a new user, <a href="register">register an account.</a> If you're a returning user, you
-        should be logged in automatically. If not, <a href="login">log in here!</a></li>
-    <li><strong>Browse the Gallery:</strong> The <a href="/">gallery page</a> is where you can see all the images uploaded to the site.
+    <li><strong>Register/Log In:</strong> If you're a new user, <a href="register" target="_blank">register an account.</a> If you're a returning user, you
+        should be logged in automatically. If not, <a href="login" target="_blank">log in here!</a></li>
+    <li><strong>Browse the Gallery:</strong> The <a href="/" target="_blank">gallery page</a> is where you can see all the images uploaded to the site.
         Click on an image to view it in a larger size. Each video has its associated video link (YouTube, Vimeo, etc.).</li>
-    <li><strong>Browse Community Tutorials</strong>If you want to become better at NSS Golf, consider checking out the <a href="tutorials">tutorials page.</a>These videos are made by the community, for the community!</li>
-    <li><strong>Uploading an Image:</strong> If you are logged in, you can <a href="upload">upload your own images.</a> Each image requires a
+    <li><strong>Browse Community Tutorials</strong>If you want to become better at NSS Golf, consider checking out the <a href="tutorials" target="_blank">tutorials page.</a>These videos are made by the community, for the community!</li>
+    <li><strong>Uploading an Image:</strong> If you are logged in, you can <a href="upload" target="_blank">upload your own images.</a> Each image requires a
         link to a video to verify the shot is as shown in the image. The image must show the swing of the shot and what
         the minimap looked like. When performing a swing, the game hides the minimap. You must edit the photo to include
         the minimap in the image. You will be asked to input the stats of the shot such as Wind Speed, Flag Position,
@@ -67,7 +67,7 @@
     <h3>Contribution Guidelines</h3>
 
     <p>If you'd like to contribute to this project, you're more than welcome! Please follow these steps at <a
-            href="https://github.com/MyPingO/NSS-Golf-Perfect-Shots-Library">our github page</a>:</p>
+            href="https://github.com/MyPingO/NSS-Golf-Perfect-Shots-Gallery" target="_blank">our github page</a>:</p>
 
     <ol>
         <li><strong>Fork the Repository:</strong> Click the 'Fork' button at the top-right of this page to create a copy
@@ -90,11 +90,11 @@
 
     <p>This project is built with Flask, a lightweight WSGI web application framework. It's designed to make getting
         started quick and easy, with the ability to scale up to complex applications. <a
-            href="https://flask.palletsprojects.com/en/2.3.x/">Learn more about Flask</a>.</p>
+            href="https://flask.palletsprojects.com/en/2.3.x/" target="_blank">Learn more about Flask</a>.</p>
 
     <p>If you need further information or have any questions, please feel free to open an issue on this repository.</p>
 
-    <p>Thank you for your interest in our NSS Golf Perfect Shots Library project! We look forward to your contribution.
+    <p>Thank you for your interest in our NSS Golf Perfect Shots Gallery project! We look forward to your contribution.
     </p>
 
 </div>
@@ -103,7 +103,7 @@
 
 <h2>Support Our Work!</h2>
 <p>
-    We are dedicated to maintaining and updating the NSS Golf Perfect Shots Library for golf enthusiasts all around
+    We are dedicated to maintaining and updating the NSS Golf Perfect Shots Gallery for golf enthusiasts all around
     the world. If you enjoy using this platform and would like to see it continue to grow, we kindly invite you to
     consider supporting us.
 </p>
@@ -116,6 +116,15 @@
     support!
 </p>
 <a href="https://www.patreon.com/NSSGolfShots" target="_blank" class="btn btn-primary">Donate on Patreon</a>
+
+<hr>
+
+<h2>Join our Discord!</h2>
+<p>
+    We have a <a href="https://discord.gg/cUCvymUdpu" target="_blank">Discord server</a> where you can chat with other members of the community, share your shots, play together.
+    We'd love to have you join us!
+</p>
+
 {% endblock %}
 {% block scripts %}
 <script>
