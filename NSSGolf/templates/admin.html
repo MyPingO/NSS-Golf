@@ -10,8 +10,8 @@
     <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 mb-4">
         <div class="card">
             <!-- Add a new data attribute for the image URL and img-trigger class -->
-            <img class="card-img-top img-trigger" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
-                alt="{{ image.title }}" data-img-url="{{ url_for('uploaded_file', filename=image.img_file) }}"
+            <img class="card-img-top img-trigger" src="{{ url_for('get_upload', filename=image.img_file) }}"
+                alt="{{ image.title }}" data-img-url="{{ url_for('get_upload', filename=image.img_file) }}"
                 data-username="{{ image.user.username }}">
             <div class="card-body">
                 <h5 class="card-title">{{ image.title|safe }}</h5>

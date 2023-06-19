@@ -19,8 +19,8 @@
     <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 mb-4">
         <div class="card">
             <!-- Add a new data attribute for the image URL -->
-            <img class="card-img-top img-trigger" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
-                alt="{{ image.title }}" data-img-url="{{ url_for('uploaded_file', filename=image.img_file) }}"
+            <img class="card-img-top img-trigger" src="{{ url_for('get_upload', filename=image.img_file) }}"
+                alt="{{ image.title }}" data-img-url="{{ url_for('get_upload', filename=image.img_file) }}"
                 data-username="{{ image.user.username }}">
             <div class="card-body">
                 <!-- 
@@ -89,15 +89,14 @@
 {% if user.is_authenticated %}
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     {% for notification in notifications %}
-    <div  class="toast" role="alert" aria-live="assertive" aria-atomic="true"
-    style="background-color: #2f3b4c;">
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <i class="bi bi-bell-fill me-2" style="color: red;"></i>
             <strong class="me-auto">Alert</strong>
-            <small style="color:  rgb(0, 119, 255);">{{ notification.created_at.strftime('%m/%d/%Y, %I:%M:%S %p') }}</small>
+            <small style="color:rgb(0, 119, 255);">{{ notification.created_at.strftime('%m/%d/%Y, %I:%M:%S %p') }}</small>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">
+        <div class="toast-body" style="color: red;">
             {{ notification.message }}
         </div>
     </div>

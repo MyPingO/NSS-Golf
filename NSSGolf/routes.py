@@ -13,6 +13,7 @@ from NSSGolf.models import Image, User, Tutorial, Notification
 def gallery():
     images = Image.query.filter_by(approved=True).all()
     if current_user.is_authenticated:
+        Notification.delete_read_notifications()
         notifications = Notification.query.filter_by(user_id=current_user.id, read=False).all()
         for notification in notifications:
             notification.read = True
@@ -227,5 +228,5 @@ def logout():
     return redirect(url_for('gallery'))
 
 @app.route('/uploads/<filename>')
-def uploaded_file(filename):
+def get_upload(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
