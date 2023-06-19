@@ -2,7 +2,7 @@ from flask import flash
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from flask_uploads import UploadSet, IMAGES
-from wtforms import StringField, SubmitField, BooleanField, PasswordField, FileField, HiddenField, RadioField, IntegerField, FloatField, SelectField
+from wtforms import StringField, SubmitField, BooleanField, PasswordField, FileField, HiddenField, RadioField, IntegerField, FloatField, SelectField, TextAreaField
 from wtforms.validators import DataRequired, Length, EqualTo, URL, ValidationError, NumberRange
 from NSSGolf.models import User, Tutorial, Image, Role
 
@@ -63,4 +63,5 @@ class AdminForm(FlaskForm):
     image_id = HiddenField('Image ID')
     tutorial_id = HiddenField('Tutorial ID')
     action = SelectField('Action', choices=[('Approve', 'Approve'), ('Reject', 'Reject')], validators=[DataRequired()])
+    rejection_reason = TextAreaField('Rejection Reason', render_kw={'placeholder': 'Add a reason for rejection here.'})
     submit = SubmitField('Submit')

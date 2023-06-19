@@ -1,3 +1,5 @@
+from datetime import datetime
+import os
 from flask import render_template, redirect, url_for, flash, request, send_from_directory, abort, Markup
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -5,11 +7,17 @@ from werkzeug.utils import secure_filename
 
 from NSSGolf import app, db
 from NSSGolf.forms import LoginForm, ShotUploadForm, TutorialUploadForm, ShotSearchForm, TutorialSearchForm, RegistrationForm, AdminForm
-from NSSGolf.models import Image, User, Tutorial
+from NSSGolf.models import Image, User, Tutorial, Notification
 
 @app.route('/')
 def gallery():
     images = Image.query.filter_by(approved=True).all()
+    if current_user.is_authenticated:
+        notifications = Notification.query.filter_by(user_id=current_user.id, read=False).all()
+        for notification in notifications:
+            notification.read = True
+        db.session.commit()
+        return render_template('gallery.html', images=images, notifications=notifications, user=current_user)
     return render_template('gallery.html', images=images, user=current_user)
 
 @app.route('/tutorials')
@@ -74,11 +82,14 @@ def upload():
 
         image = form_shot.image.data
         filename = secure_filename(image.filename)
-        filepath = f"{app.config['UPLOAD_FOLDER']}/{filename}"
+        filename, extension = os.path.splitext(filename)  # Split the filename and extension
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        unique_filename = f"{filename}_{timestamp}{extension}" # Add timestamp to filename to make it unique
+        filepath = f"{app.config['UPLOAD_FOLDER']}/{unique_filename}"
         image.save(filepath)
         #Markup makes the <br> work in the HTML
         image_title = Markup(f'-Hole {form_shot.hole_number.data}<br>-{form_shot.wind_speed.data}{form_shot.wind_speed_units.data.upper()} Wind Going {form_shot.wind_direction.data}<br>-{form_shot.flag_position.data} Side Flag Position<br>-Shot from {form_shot.shot_distance.data}{form_shot.distance_units.data} Away')
-        new_image = Image(title=image_title, img_file=filename, youtube_link=form_shot.youtube_link.data, 
+        new_image = Image(title=image_title, img_file=unique_filename, youtube_link=form_shot.youtube_link.data, 
                         hole_number=form_shot.hole_number.data, wind_speed=form_shot.wind_speed.data, wind_speed_units=form_shot.wind_speed_units.data, 
                         wind_direction=form_shot.wind_direction.data, flag_position=form_shot.flag_position.data,
                         shot_distance=form_shot.shot_distance.data, distance_units=form_shot.distance_units.data, 
@@ -134,6 +145,12 @@ def admin():
             if action == 'Approve':
                 image.approved = True
             elif action == 'Reject':
+                # Check that a rejection reason was provided
+                if not form.rejection_reason.data:
+                    flash('Please provide a reason for rejection.', 'danger')
+                    return redirect(url_for('admin'))
+                notification = Notification(message=form.rejection_reason.data, user_id=image.user_id)
+                db.session.add(notification)
                 db.session.delete(image)
         elif tutorial_id:
             tutorial = Tutorial.query.get(tutorial_id)
@@ -141,6 +158,12 @@ def admin():
             if action == 'Approve':
                 tutorial.approved = True
             elif action == 'Reject':
+                # Check that a rejection reason was provided
+                if not form.rejection_reason.data:
+                    flash('Please provide a reason for rejection.', 'danger')
+                    return redirect(url_for('admin'))
+                notification = Notification(message=form.rejection_reason.data, user_id=tutorial.user_id)
+                db.session.add(notification)
                 db.session.delete(tutorial)
         db.session.commit()
         flash('Action successful.', 'success')

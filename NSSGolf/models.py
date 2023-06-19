@@ -1,7 +1,16 @@
 from NSSGolf import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
+from datetime import datetime
 
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String(120), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref='notifications', lazy=True)
+    read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    type = db.Column(db.String(20), nullable=True)
 
 class Tutorial(db.Model):
     id = db.Column(db.Integer, primary_key=True)

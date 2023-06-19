@@ -15,8 +15,8 @@
         </div>
     </div>
     {% endif %}
-    {% for image in images %}
-    <div class="col-md-4 mb-4">
+    {% for image in images|reverse %}
+    <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 mb-4">
         <div class="card">
             <!-- Add a new data attribute for the image URL -->
             <img class="card-img-top img-trigger" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
@@ -86,6 +86,25 @@
         </div>
     </div>
 </div>
+{% if user.is_authenticated %}
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    {% for notification in notifications %}
+    <div  class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+    style="background-color: #2f3b4c;">
+        <div class="toast-header">
+            <i class="bi bi-bell-fill me-2" style="color: red;"></i>
+            <strong class="me-auto">Alert</strong>
+            <small style="color:  rgb(0, 119, 255);">{{ notification.created_at.strftime('%m/%d/%Y, %I:%M:%S %p') }}</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ notification.message }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 
 {% endblock %}
 {% block scripts %}
@@ -100,24 +119,35 @@
 
     var imageIdToDelete;
 
-    imgTriggers.forEach(function(img){
-        img.addEventListener('click', function(event){
+    imgTriggers.forEach(function (img) {
+        img.addEventListener('click', function (event) {
             modalImg.src = event.target.getAttribute('data-img-url');
             uploadedBy.textContent = "Uploaded by: " + event.target.getAttribute('data-username');
             imageModal.show();
         });
     });
 
-    deleteButtons.forEach(function(btn){
-        btn.addEventListener('click', function(event){
+    deleteButtons.forEach(function (btn) {
+        btn.addEventListener('click', function (event) {
             imageIdToDelete = event.currentTarget.getAttribute('data-img-id'); // store the image id when a delete button is clicked
         });
-    });    
+    });
 
-    confirmDeleteBtn.onclick = function() {
+    confirmDeleteBtn.onclick = function () {
         var deleteForm = document.getElementById('deleteForm' + imageIdToDelete);
         deleteForm.action = '/delete_image/' + imageIdToDelete;
         deleteForm.submit();
     };
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            var toast = new bootstrap.Toast(toastEl, {
+                autohide: false
+            });
+            toast.show();
+            return toast;
+        });
+    });
 </script>
 {% endblock %}

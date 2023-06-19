@@ -78,7 +78,7 @@
         <!-- found images -->
         <div class="row mt-4">
             {% for image in images %}
-            <div class="col-md-4 mb-4">
+            <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 mb-4">
                 <div class="card">
                     <!-- Add a new data attribute for the image URL -->
                     <img class="card-img-top img-trigger" src="{{ url_for('uploaded_file', filename=image.img_file) }}"

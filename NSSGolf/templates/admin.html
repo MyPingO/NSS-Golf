@@ -1,9 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1 style="text-align: center;">Admin Page</h1>
+<h1 class="text-center">Admin Page</h1>
+<h3 class="text-center">
+    When rejecting a submission, specify which post was rejected and the reason to the user. <br>
+    Start off with <i>"Your (shot OR tutorial) submission (for hole 'X' OR titled 'X') was rejected because...".</i>
+</h3>
 <div class="row">
     {% for image in images %}
-    <div class="col-md-4 mb-4">
+    <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 mb-4">
         <div class="card">
             <!-- Add a new data attribute for the image URL and img-trigger class -->
             <img class="card-img-top img-trigger" src="{{ url_for('uploaded_file', filename=image.img_file) }}"
@@ -15,10 +19,15 @@
                 <form method="POST">
                     {{ form.csrf_token }}
                     {{ form.image_id(value=image.id, class="form-control d-none") }}
-                    <!-- The d-none class makes this input invisible -->
                     <div class="row mt-2">
                         <div class="col-12">
                             {{ form.action(class="form-select") }}
+                        </div>
+                    </div>
+                    <!-- "d-none" class added to hide the rejection reason field by default -->
+                    <div id="rejection-reason-container" class="row mt-2 d-none">
+                        <div class="col-12">
+                            {{ form.rejection_reason(class="form-control") }}
                         </div>
                     </div>
                     <div class="row mt-2">
@@ -49,6 +58,11 @@
                     <div class="row mt-2">
                         <div class="col-12">
                             {{ form.action(class="form-select") }}
+                        </div>
+                    </div>
+                    <div id="rejection-reason-container" class="row mt-2 d-none">
+                        <div class="col-12">
+                            {{ form.rejection_reason(class="form-control") }}
                         </div>
                     </div>
                     <div class="row mt-2">
@@ -93,6 +107,18 @@
             uploadedBy.textContent = "Uploaded by: " + event.target.getAttribute('data-username');
             imageModal.show();
         });
+    });
+
+    // Show the rejection reason field if "Reject" is selected
+    var actionSelect = document.querySelector('select[name="action"]');
+    var rejectionReasonContainer = document.getElementById('rejection-reason-container');
+
+    actionSelect.addEventListener('change', function () {
+        if (this.value === 'Reject') {
+            rejectionReasonContainer.classList.remove('d-none');
+        } else {
+            rejectionReasonContainer.classList.add('d-none');
+        }
     });
 </script>
 {% endblock %}
