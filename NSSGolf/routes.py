@@ -9,11 +9,14 @@ from NSSGolf import app, db
 from NSSGolf.forms import LoginForm, ShotUploadForm, TutorialUploadForm, ShotSearchForm, TutorialSearchForm, RegistrationForm, AdminForm
 from NSSGolf.models import Image, User, Tutorial, Notification
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 @app.route('/')
 def gallery():
     images = Image.query.filter_by(approved=True).all()
     if current_user.is_authenticated:
-        Notification.delete_read_notifications()
         notifications = Notification.query.filter_by(user_id=current_user.id, read=False).all()
         for notification in notifications:
             notification.read = True
@@ -52,7 +55,7 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password, form.password.data):
-            login_user(user)
+            login_user(user, remember=True)
             return redirect(url_for('gallery'))
         else:
             flash('Invalid username or password.')
@@ -98,6 +101,8 @@ def upload():
         db.session.add(new_image)
         db.session.commit()
 
+        send_email()
+
         flash('Image uploaded and is pending approval.')
         return redirect(url_for('gallery'))
     
@@ -106,11 +111,33 @@ def upload():
         db.session.add(new_tutorial)
         db.session.commit()
 
+        send_email()
+
         flash('Tutorial uploaded and is pending approval.')
         return redirect(url_for('gallery'))
     
+    
     return render_template('upload.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form)
 
+def send_email():
+    from_address = "nssgolfshots@gmail.com"
+    to_address = "nssgolfshots@gmail.com"
+    password = "Password"  # Use application-specific password if 2FA is enabled
+
+    msg = MIMEMultipart()
+    msg['From'] = from_address
+    msg['To'] = to_address
+    msg['Subject'] = "New Submission to nssgolfshots.com"
+
+    body = f"{current_user.username} submitted something to nssgolfshots.com."
+    msg.attach(MIMEText(body, 'plain'))
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(from_address, password)
+    text = msg.as_string()
+    server.sendmail(from_address, to_address, text)
+    server.quit()
 
 @app.route('/delete_image/<int:id>', methods=['POST'])
 @login_required
@@ -181,34 +208,33 @@ def search():
     form_tutorial = TutorialSearchForm()
     active_form = request.args.get('form')
     if active_form == 'shot' and form_shot.validate_on_submit():
-        if form_shot.wind_speed_units.data == 'MPH' and not 2 <= form_shot.wind_speed.data <= 33:
-            flash('Invalid wind speed, must be between 2 and 33 MPH.', 'error')
-            return render_template('upload.html', form_shot=form_shot)
-        elif form_shot.wind_speed_units.data == 'KM/H' and not 3 <= form_shot.wind_speed.data <= 55:
-            flash('Invalid wind speed, must be between 3 and 55 KM/H.', 'error')
-            return render_template('upload.html', form_shot=form_shot)
-        elif form_shot.wind_speed_units.data == 'm/s' and not 1 <= form_shot.wind_speed.data <= 15:
-            flash('Invalid wind speed, must be between 1 and 15 m/s', 'error')
-            return render_template('upload.html', form_shot=form_shot)
+        
+        # Start query
+        query = Image.query
 
-        if form_shot.shot_distance.data <= 0:
-            flash('Invalid shot distance, must be greater than 0.', 'error')
-            return render_template('upload.html', form_shot=form_shot)
-        # Extract data from form
-        hole_number = form_shot.hole_number.data
-        wind_speed = form_shot.wind_speed.data
-        shot_distance = form_shot.shot_distance.data
-        flag_position = form_shot.flag_position.data
+        # Add filters based on form data
+        if form_shot.hole_number.data:
+            query = query.filter(Image.hole_number == form_shot.hole_number.data)
+        if form_shot.wind_speed.data:
+            query = query.filter(Image.wind_speed == form_shot.wind_speed.data)
+        if form_shot.wind_direction.data:
+            query = query.filter(Image.wind_direction == form_shot.wind_direction.data)
+        if form_shot.flag_position.data:
+            query = query.filter(Image.flag_position == form_shot.flag_position.data)
+        if form_shot.shot_distance.data:
+            query = query.filter(Image.shot_distance == form_shot.shot_distance.data)
+        if form_shot.wind_speed_units.data:
+            query = query.filter(Image.wind_speed_units == form_shot.wind_speed_units.data)
+        if form_shot.distance_units.data:
+            query = query.filter(Image.distance_units == form_shot.distance_units.data)
 
-        # Search for images matching the criteria
-        images = Image.query.filter_by(hole_number=hole_number, 
-                                        wind_speed=wind_speed, 
-                                        shot_distance=shot_distance, 
-                                        flag_position=flag_position, 
-                                        approved=True).all()  # Only approved images
+        # Filter by approved status and execute query
+        images = query.filter_by(approved=True).all()
+
         if (len(images) == 0):
             flash('No images found matching the criteria.', 'danger')
         return render_template('search.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form, images=images)
+
     elif active_form == 'tutorial' and form_tutorial.validate_on_submit():
         # Extract data from form
         category = form_tutorial.category.data

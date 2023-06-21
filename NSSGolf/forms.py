@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from flask_uploads import UploadSet, IMAGES
 from wtforms import StringField, SubmitField, BooleanField, PasswordField, FileField, HiddenField, RadioField, IntegerField, FloatField, SelectField, TextAreaField
-from wtforms.validators import DataRequired, Length, EqualTo, URL, ValidationError, NumberRange
+from wtforms.validators import Optional, DataRequired, Length, EqualTo, URL, ValidationError, NumberRange
 from NSSGolf.models import User, Tutorial, Image, Role
 
 class RegistrationForm(FlaskForm):
@@ -50,13 +50,13 @@ class TutorialSearchForm(FlaskForm):
     submit = SubmitField('Search')
 
 class ShotSearchForm(FlaskForm):
-    hole_number = IntegerField('Hole Number', validators=[DataRequired(), NumberRange(min=1, max=21, message='Hole number must be between 1 and 21.')])
-    wind_speed = IntegerField('Wind Speed', validators=[DataRequired()])
-    wind_direction = SelectField('Wind Direction', choices=[('North','North'),('South','South'),('East','East'),('West','West'),('North-East','North-East'),('North-West','North-West'),('South-East','South-East'),('South-West','South-West'),('Center','Center')], validators=[DataRequired()])
-    flag_position = SelectField('Flag Position', choices=[('North','North'),('South','South'),('East','East'),('West','West'),('North-East','North-East'),('North-West','North-West'),('South-East','South-East'),('South-West','South-West'),('Center','Center')], validators=[DataRequired()])
-    shot_distance = FloatField('Shot Distance', validators=[DataRequired()])
-    wind_speed_units = SelectField('Wind Unit', choices=[('MPH','MPH'),('KM/H','KM/H'),('m/s', 'm/s')], validators=[DataRequired()])
-    distance_units = SelectField('Distance Unit', choices=[('yd','Yards'),('ft', 'Feet'),('m','Meters')], validators=[DataRequired()])
+    hole_number = IntegerField('Hole Number', validators=[DataRequired(), NumberRange(min=1, max=21)])
+    wind_speed = IntegerField('Wind Speed', validators=[Optional(), NumberRange(min=1, max=54)])
+    wind_direction = SelectField('Wind Direction', choices=[('','Select...'),('North','North'),('South','South'),('East','East'),('West','West'),('North-East','North-East'),('North-West','North-West'),('South-East','South-East'),('South-West','South-West'),('Center','Center')], validators=[Optional()])
+    flag_position = SelectField('Flag Position', choices=[('','Select...'),('North','North'),('South','South'),('East','East'),('West','West'),('North-East','North-East'),('North-West','North-West'),('South-East','South-East'),('South-West','South-West'),('Center','Center')], validators=[Optional()])
+    shot_distance = FloatField('Shot Distance', validators=[Optional()])
+    wind_speed_units = SelectField('Wind Unit', choices=[('','Select...'),('MPH','MPH'),('KM/H','KM/H'),('m/s', 'm/s')], validators=[Optional()])
+    distance_units = SelectField('Distance Unit', choices=[('','Select...'),('yd','Yards'),('ft', 'Feet'),('m','Meters')], validators=[Optional()])
     submit = SubmitField('Search')
 
 class AdminForm(FlaskForm):
