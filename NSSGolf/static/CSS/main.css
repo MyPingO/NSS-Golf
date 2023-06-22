@@ -126,4 +126,19 @@ img {
     color: #fff;
 }
 
+.like-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: rgb(255, 255, 255); /* icon color */
+}
+
+.like-button.liked {
+    color: rgb(52, 255, 130); /* change icon color when liked */
+}
+
+.like-button:hover {
+    outline: none;
+}
 

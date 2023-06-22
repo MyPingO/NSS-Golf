@@ -1,13 +1,13 @@
 from datetime import datetime
 import os
-from flask import render_template, redirect, url_for, flash, request, send_from_directory, abort, Markup
+from flask import render_template, jsonify, redirect, Response, url_for, flash, request, send_from_directory, abort, Markup
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 from NSSGolf import app, db
 from NSSGolf.forms import LoginForm, ShotUploadForm, TutorialUploadForm, ShotSearchForm, TutorialSearchForm, RegistrationForm, AdminForm
-from NSSGolf.models import Image, User, Tutorial, Notification
+from NSSGolf.models import Role, Image, User, Tutorial, Notification, ImageLike, TutorialLike
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -17,17 +17,89 @@ from email.mime.text import MIMEText
 def gallery():
     images = Image.query.filter_by(approved=True).all()
     if current_user.is_authenticated:
+        #dictionary comprehension to get all the liked images for the current user
+        user_likes = {image.id: image.is_liked_by(current_user) for image in images}
         notifications = Notification.query.filter_by(user_id=current_user.id, read=False).all()
         for notification in notifications:
-            notification.read = True
+            db.session.delete(notification)
         db.session.commit()
-        return render_template('gallery.html', images=images, notifications=notifications, user=current_user)
+        return render_template('gallery.html', images=images, notifications=notifications, user_likes=user_likes, user=current_user)
     return render_template('gallery.html', images=images, user=current_user)
+
+@app.route('/like_image/<int:image_id>', methods=['POST'])
+@login_required
+def like_image(image_id):
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        flash("Can't go there!", 'error')
+        return redirect(url_for('gallery'))
+
+    image = Image.query.get(image_id)
+    if not image:
+        flash('Image not found.', 'error')
+        return redirect(url_for('gallery'))
+
+    # Check if user has already liked the image
+    like = ImageLike.query.filter_by(user_id=current_user.id, image_id=image_id).first()
+    if like:
+        # If a Like record exists, unlike the image
+        with db.session.no_autoflush:
+            # Decrement the like count atomically to prevent race conditions
+            db.session.query(Image).filter_by(id=image_id).update({Image.like_count: Image.like_count - 1})
+            db.session.delete(like)
+            db.session.commit()
+        return jsonify(like_count=image.like_count), 200
+    else:
+        # If no Like record exists, like the image
+        new_like = ImageLike(user_id=current_user.id, image_id=image_id)
+        db.session.add(new_like)
+        with db.session.no_autoflush:
+            # Increment the like count atomically to prevent race conditions
+            db.session.query(Image).filter_by(id=image_id).update({Image.like_count: Image.like_count + 1})
+            db.session.commit()
+        return jsonify(like_count=image.like_count), 201
 
 @app.route('/tutorials')
 def tutorials():
     tutorials = Tutorial.query.filter_by(approved=True).all()
+    if current_user.is_authenticated:
+        #dictionary comprehension to get all the liked images for the current user
+        user_likes = {tutorial.id: tutorial.is_liked_by(current_user) for tutorial in tutorials}
+        return render_template('tutorials.html', tutorials=tutorials, user_likes=user_likes, user=current_user)
     return render_template('tutorials.html', tutorials=tutorials, user=current_user)
+
+@app.route('/like_tutorial/<int:tutorial_id>', methods=['POST'])
+@login_required
+def like_tutorial(tutorial_id):
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        flash("Can't go there!", 'error')
+        return redirect(url_for('tutorials'))
+
+    tutorial = Tutorial.query.get(tutorial_id)
+    if not tutorial:
+        flash('Tutorial not found.', 'error')
+        return redirect(url_for('tutorials'))
+    
+    # Check if user has already liked the tutorial
+    like = TutorialLike.query.filter_by(user_id=current_user.id, tutorial_id=tutorial_id).first()
+    if like:
+        with db.session.no_autoflush:
+            # Decrement the like count atomically to prevent race conditions
+            db.session.query(Tutorial).filter_by(id=tutorial_id).update({Tutorial.like_count: Tutorial.like_count - 1})
+            db.session.delete(like)
+            db.session.commit()
+        tutorial = Tutorial.query.get(tutorial_id)
+        return jsonify(like_count=tutorial.like_count), 200 # 200 = OK
+
+    else:
+        # If no Like record exists, like the tutorial
+        new_like = TutorialLike(user_id=current_user.id, tutorial_id=tutorial_id)
+        db.session.add(new_like)
+        with db.session.no_autoflush:
+            # Increment the like count atomically to prevent race conditions
+            db.session.query(Tutorial).filter_by(id=tutorial_id).update({Tutorial.like_count: Tutorial.like_count + 1})
+            db.session.commit()
+        tutorial = Tutorial.query.get(tutorial_id)
+        return jsonify(like_count=tutorial.like_count), 201 # 201 = Created
 
 @app.route('/about')
 def about():
@@ -101,8 +173,6 @@ def upload():
         db.session.add(new_image)
         db.session.commit()
 
-        send_email()
-
         flash('Image uploaded and is pending approval.')
         return redirect(url_for('gallery'))
     
@@ -111,14 +181,14 @@ def upload():
         db.session.add(new_tutorial)
         db.session.commit()
 
-        send_email()
-
         flash('Tutorial uploaded and is pending approval.')
         return redirect(url_for('gallery'))
     
     
     return render_template('upload.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form)
 
+
+#not using this for now except for in the actual build
 def send_email():
     from_address = "nssgolfshots@gmail.com"
     to_address = "nssgolfshots@gmail.com"
@@ -139,19 +209,26 @@ def send_email():
     server.sendmail(from_address, to_address, text)
     server.quit()
 
-@app.route('/delete_image/<int:id>', methods=['POST'])
+@app.route('/delete_image/<int:image_id>', methods=['POST'])
 @login_required
-def delete_image(id):
-    if current_user.role_id != 2:
-        abort(403)  # Forbidden
+def delete_image(image_id):
+    image = Image.query.get_or_404(image_id)
+    
+    # Delete the actual image file from the server
+    try:
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], image.img_file))
+    except Exception as e:
+        flash('Error: {}'.format(e), 'error')
+    
+    # Delete all likes related to this image
+    likes = ImageLike.query.filter_by(image_id=image.id).all()
+    for like in likes:
+        db.session.delete(like)
+    
+    # Then delete the image from the database
+    db.session.delete(image)
+    db.session.commit()
 
-    image = Image.query.get(id)
-    if image:
-        db.session.delete(image)
-        db.session.commit()
-        flash('The image has been deleted successfully.', 'success')
-    else:
-        flash('Image not found.', 'error')
     return redirect(url_for('gallery'))
 
 
@@ -208,7 +285,7 @@ def search():
     form_tutorial = TutorialSearchForm()
     active_form = request.args.get('form')
     if active_form == 'shot' and form_shot.validate_on_submit():
-        
+
         # Start query
         query = Image.query
 

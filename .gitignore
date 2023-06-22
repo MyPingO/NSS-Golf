@@ -1,3 +1,6 @@
+#allembic migration stuff
+/migrations
+
 #image files
 *.JPG
 *.PNG

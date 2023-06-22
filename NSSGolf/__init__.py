@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_uploads import UploadSet, configure_uploads, IMAGES
+from flask_migrate import Migrate
 import os
 
 database_name = 'NSSGolfPSL.db'
@@ -20,6 +21,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 
 # create the extension
 db = SQLAlchemy()
+migrate = Migrate(app, db)
 
 # initialize the app with the extension
 db.init_app(app)
@@ -28,7 +30,7 @@ login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
 
-from NSSGolf.models import User, Role, Image
+from NSSGolf.models import Role, Image, User, Tutorial, Notification, ImageLike, TutorialLike
 
 @login_manager.user_loader
 def load_user(id):

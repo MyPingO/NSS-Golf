@@ -3,6 +3,14 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 
+class ImageLike(db.Model):
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    image_id = db.Column(db.Integer, db.ForeignKey('image.id'), primary_key=True)
+
+class TutorialLike(db.Model):
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    tutorial_id = db.Column(db.Integer, db.ForeignKey('tutorial.id'), primary_key=True)
+
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(500), nullable=False)
@@ -11,14 +19,7 @@ class Notification(db.Model):
     read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     type = db.Column(db.String(20), nullable=True)
-
-    @staticmethod
-    def delete_read_notifications():
-        notifications = Notification.query.filter_by(read=True).all()
-        for notification in notifications:
-            db.session.delete(notification)
-        db.session.commit()
-
+    
 class Tutorial(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
@@ -28,7 +29,12 @@ class Tutorial(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref='tutorials', lazy=True)
 
+    like_count = db.Column(db.Integer, default=0, nullable=False)
+
     approved = db.Column(db.Boolean, default=False)
+
+    def is_liked_by(self, user):
+        return TutorialLike.query.filter_by(tutorial_id=self.id, user_id=user.id).first() is not None
 
 class Image(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -47,7 +53,12 @@ class Image(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref='images', lazy=True)
 
+    like_count = db.Column(db.Integer, default=0, nullable=False)
+
     approved = db.Column(db.Boolean, default=False)
+
+    def is_liked_by(self, user):
+        return ImageLike.query.filter_by(image_id=self.id, user_id=user.id).first() is not None
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)

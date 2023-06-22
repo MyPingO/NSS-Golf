@@ -43,6 +43,10 @@
             </div>
             <div class="card-footer">
                 Uploaded by: {{ image.user.username }}
+                <button class="like-button float-end {{ 'liked' if user_likes.get(image.id) else '' }}" data-image-id="{{ image.id }}">
+                    <i class="bi bi-hand-thumbs-up"></i>
+                    <span id="like-count-{{ image.id }}">{{ image.like_count }}</span>
+                </button>
             </div>
         </div>
     </div>
@@ -86,6 +90,8 @@
         </div>
     </div>
 </div>
+
+<!-- Toast Notifications -->
 {% if user.is_authenticated %}
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     {% for notification in notifications %}
@@ -147,6 +153,37 @@
             });
             toast.show();
             return toast;
+        });
+    });
+
+    // Select all like buttons
+    document.querySelectorAll('.like-button[data-image-id]').forEach(button => {
+        button.addEventListener('click', function () {
+            const imageId = this.dataset.imageId;
+            fetch('/like_image/' + imageId, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // If the response is 409, the user has already liked the image
+                    else if (response.status === 409) {
+                        this.classList.toggle('liked'); //get rid of 'liked' in the class name
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('like-count-' + imageId).innerText = data.like_count;
+                    this.classList.toggle('liked'); // add 'liked' to the class name
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
         });
     });
 </script>
