@@ -211,7 +211,7 @@ def send_email():
 
 @app.route('/delete_image/<int:image_id>', methods=['POST'])
 @login_required
-def delete_image(image_id):
+def delete_image(image_id, from_admin=False):
     image = Image.query.get_or_404(image_id)
     
     # Delete the actual image file from the server
@@ -229,7 +229,10 @@ def delete_image(image_id):
     db.session.delete(image)
     db.session.commit()
 
-    return redirect(url_for('gallery'))
+    if from_admin:
+        return "success"
+    else:
+        return redirect(url_for('gallery'))
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -249,6 +252,7 @@ def admin():
             action = form.action.data
             if action == 'Approve':
                 image.approved = True
+                db.session.commit()
             elif action == 'Reject':
                 # Check that a rejection reason was provided
                 if not form.rejection_reason.data:
@@ -256,12 +260,14 @@ def admin():
                     return redirect(url_for('admin'))
                 notification = Notification(message=form.rejection_reason.data, user_id=image.user_id)
                 db.session.add(notification)
-                db.session.delete(image)
+                db.session.commit()
+                delete_image(image_id, from_admin=True)
         elif tutorial_id:
             tutorial = Tutorial.query.get(tutorial_id)
             action = form.action.data
             if action == 'Approve':
                 tutorial.approved = True
+                db.session.commit()
             elif action == 'Reject':
                 # Check that a rejection reason was provided
                 if not form.rejection_reason.data:
@@ -270,7 +276,7 @@ def admin():
                 notification = Notification(message=form.rejection_reason.data, user_id=tutorial.user_id)
                 db.session.add(notification)
                 db.session.delete(tutorial)
-        db.session.commit()
+                db.session.commit()
         flash('Action successful.', 'success')
         return redirect(url_for('admin'))
     # Only images waiting for approval
