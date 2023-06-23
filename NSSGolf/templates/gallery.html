@@ -1,10 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-{% if user.is_authenticated %}
-<h1 class="mb-3" style="text-align: center;">Welcome {{ user.username }}, to the NSS Golf Shots Gallery!</h1>
-{% else %}
-<h1 class="mb-3" style="text-align: center;">Welcome to the NSS Golf Shots Gallery!</h1>
-{% endif %}
+<div class="welcome text-center">
+    {% if user.is_authenticated %}
+    <h1 class="mb-3">Welcome {{ user.username }}, to the NSS Golf Shots Gallery!</h1>
+    {% else %}
+    <h1 class="mb-3">Welcome to the NSS Golf Shots Gallery!</h1>
+    {% endif %}
+    <p>Click on an image to make it bigger!</p>
+</div>
 
 <div class="row">
     {% if images|length == 0 %}
