@@ -142,14 +142,14 @@ def upload():
     active_form = request.args.get('form')
 
     if active_form == 'shot' and form_shot.validate_on_submit():
-        if form_shot.wind_speed_units.data == 'MPH' and not 2 <= form_shot.wind_speed.data <= 33:
-            flash('Invalid wind speed, must be between 2 and 33 MPH.', 'error')
+        if form_shot.wind_speed_units.data == 'MPH' and not 0 <= form_shot.wind_speed.data <= 33:
+            flash('Invalid wind speed, must be between 0 and 33 MPH.', 'error')
             return render_template('upload.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form)
-        elif form_shot.wind_speed_units.data == 'KM/H' and not 3 <= form_shot.wind_speed.data <= 55:
-            flash('Invalid wind speed, must be between 3 and 55 KM/H.', 'error')
+        elif form_shot.wind_speed_units.data == 'KM/H' and not 0 <= form_shot.wind_speed.data <= 54:
+            flash('Invalid wind speed, must be between 0 and 54 KM/H.', 'error')
             return render_template('upload.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form)
-        elif form_shot.wind_speed_units.data == 'm/s' and not 1 <= form_shot.wind_speed.data <= 15:
-            flash('Invalid wind speed, must be between 1 and 15 m/s', 'error')
+        elif form_shot.wind_speed_units.data == 'm/s' and not 0 <= form_shot.wind_speed.data <= 15:
+            flash('Invalid wind speed, must be between 0 and 15 m/s', 'error')
             return render_template('upload.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form)
 
         if form_shot.shot_distance.data <= 0:
@@ -294,11 +294,12 @@ def search():
 
         # Start query
         query = Image.query
+        print(form_shot.wind_speed.data)
 
         # Add filters based on form data
         if form_shot.hole_number.data:
             query = query.filter(Image.hole_number == form_shot.hole_number.data)
-        if form_shot.wind_speed.data:
+        if form_shot.wind_speed.data or form_shot.wind_speed.data == 0:
             query = query.filter(Image.wind_speed == form_shot.wind_speed.data)
         if form_shot.wind_direction.data:
             query = query.filter(Image.wind_direction == form_shot.wind_direction.data)
