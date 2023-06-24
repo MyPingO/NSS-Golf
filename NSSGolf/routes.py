@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 from NSSGolf import app, db
-from NSSGolf.forms import LoginForm, ShotUploadForm, TutorialUploadForm, ShotSearchForm, TutorialSearchForm, RegistrationForm, AdminForm
+from NSSGolf.forms import LoginForm, EditImageForm, ShotUploadForm, TutorialUploadForm, ShotSearchForm, TutorialSearchForm, RegistrationForm, AdminForm
 from NSSGolf.models import Role, Image, User, Tutorial, Notification, ImageLike, TutorialLike
 
 import smtplib
@@ -209,12 +209,12 @@ def send_email():
     server.sendmail(from_address, to_address, text)
     server.quit()
 
-@app.route('/delete_image/<int:image_id>', methods=['POST'])
+@app.route('/delete_image_submission/<int:image_id>', methods=['POST'])
 @login_required
-def delete_image(image_id, from_admin=False):
+def delete_image_submission(image_id, from_admin_route=False):
     image = Image.query.get_or_404(image_id)
     
-    # Delete the actual image file from the server
+    # Delete the image file from the server
     try:
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'], image.img_file))
     except Exception as e:
@@ -229,61 +229,10 @@ def delete_image(image_id, from_admin=False):
     db.session.delete(image)
     db.session.commit()
 
-    if from_admin:
+    if from_admin_route:
         return "success"
     else:
         return redirect(url_for('gallery'))
-
-
-@app.route('/admin', methods=['GET', 'POST'])
-@login_required
-def admin():
-    if not current_user.role_id == 2:
-        flash('You are not an admin.', 'danger')
-        return redirect(url_for('gallery'))
-    form = AdminForm()
-    if form.validate_on_submit():
-        image = None
-        tutorial = None
-        image_id = form.image_id.data
-        tutorial_id = form.tutorial_id.data
-        if image_id:
-            image = Image.query.get(image_id)
-            action = form.action.data
-            if action == 'Approve':
-                image.approved = True
-                db.session.commit()
-            elif action == 'Reject':
-                # Check that a rejection reason was provided
-                if not form.rejection_reason.data:
-                    flash('Please provide a reason for rejection.', 'danger')
-                    return redirect(url_for('admin'))
-                notification = Notification(message=form.rejection_reason.data, user_id=image.user_id)
-                db.session.add(notification)
-                db.session.commit()
-                delete_image(image_id, from_admin=True)
-        elif tutorial_id:
-            tutorial = Tutorial.query.get(tutorial_id)
-            action = form.action.data
-            if action == 'Approve':
-                tutorial.approved = True
-                db.session.commit()
-            elif action == 'Reject':
-                # Check that a rejection reason was provided
-                if not form.rejection_reason.data:
-                    flash('Please provide a reason for rejection.', 'danger')
-                    return redirect(url_for('admin'))
-                notification = Notification(message=form.rejection_reason.data, user_id=tutorial.user_id)
-                db.session.add(notification)
-                db.session.delete(tutorial)
-                db.session.commit()
-        flash('Action successful.', 'success')
-        return redirect(url_for('admin'))
-    # Only images waiting for approval
-    images = Image.query.filter_by(approved=False).all()
-    tutorials = Tutorial.query.filter_by(approved=False).all()
-    return render_template('admin.html', title='Admin', form=form, images=images, tutorials=tutorials)
-
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -330,6 +279,93 @@ def search():
         return render_template('search.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form, tutorials=tutorials)
     return render_template('search.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form)
 
+@app.route('/admin', methods=['GET', 'POST'])
+@login_required
+def admin():
+    if not current_user.role_id == 2:
+        flash('You are not an admin.', 'danger')
+        return redirect(url_for('gallery'))
+    form = AdminForm()
+    if form.validate_on_submit():
+        image = None
+        tutorial = None
+        image_id = form.image_id.data
+        tutorial_id = form.tutorial_id.data
+        if image_id:
+            image = Image.query.get(image_id)
+            action = form.action.data
+            if action == 'Approve':
+                image.approved = True
+                db.session.commit()
+            elif action == 'Reject':
+                # Check that a rejection reason was provided
+                if not form.rejection_reason.data:
+                    flash('Please provide a reason for rejection.', 'danger')
+                    return redirect(url_for('admin'))
+                notification = Notification(message=form.rejection_reason.data, user_id=image.user_id)
+                db.session.add(notification)
+                db.session.commit()
+                delete_image_submission(image_id, from_admin_route=True)
+        elif tutorial_id:
+            tutorial = Tutorial.query.get(tutorial_id)
+            action = form.action.data
+            if action == 'Approve':
+                tutorial.approved = True
+                db.session.commit()
+            elif action == 'Reject':
+                # Check that a rejection reason was provided
+                if not form.rejection_reason.data:
+                    flash('Please provide a reason for rejection.', 'danger')
+                    return redirect(url_for('admin'))
+                notification = Notification(message=form.rejection_reason.data, user_id=tutorial.user_id)
+                db.session.add(notification)
+                db.session.delete(tutorial)
+                db.session.commit()
+        flash('Action successful.', 'success')
+        return redirect(url_for('admin'))
+    # Only images waiting for approval
+    images = Image.query.filter_by(approved=False).all()
+    tutorials = Tutorial.query.filter_by(approved=False).all()
+    return render_template('admin.html', title='Admin', form=form, images=images, tutorials=tutorials)
+
+
+@app.route('/edit_image/<int:image_id>', methods=['GET', 'POST'])
+@login_required
+def edit_image(image_id):
+    if not current_user.role_id == 2:
+        flash('You are not an admin.', 'danger')
+        return redirect(url_for('gallery'))
+
+    image = Image.query.get_or_404(image_id)
+    form = EditImageForm(obj=image)
+
+    if form.validate_on_submit():
+        if form.image.data:
+            # Delete the old file from the server
+            try:
+                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], image.img_file))
+            except Exception as e:
+                flash('Error: {}'.format(e), 'error')           
+            # If a new file has been uploaded, save it and update the image record
+            filename = secure_filename(form.image.data.filename)
+            filename, extension = os.path.splitext(filename)  # Split the filename and extension
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            unique_filename = f"{filename}_{timestamp}{extension}"
+            filepath = f"{app.config['UPLOAD_FOLDER']}/{unique_filename}"
+            form.image.data.save(filepath)
+            image.img_file = unique_filename
+        form.populate_obj(image)  # Update the image object with the form data
+        new_title = Markup(f'-Hole {form.hole_number.data}<br>-{form.wind_speed.data}{form.wind_speed_units.data.upper()} Wind Going {form.wind_direction.data}<br>-{form.flag_position.data} Side Flag Position<br>-Shot from {form.shot_distance.data}{form.distance_units.data} Away')
+        image.title = new_title
+        db.session.commit()
+        flash('Image updated successfully.', 'success')
+        from_admin_route = request.args.get('from_admin_route', default=False, type=bool)
+        if from_admin_route:
+            flash('Edit successful.', 'success')
+            return redirect(url_for('admin'))
+        return redirect(url_for('gallery'))
+
+    return render_template('edit_image.html', form=form, image=image)
 
 @app.route('/logout')
 @login_required

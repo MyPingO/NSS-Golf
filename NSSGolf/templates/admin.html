@@ -16,6 +16,9 @@
             <div class="card-body">
                 <h5 class="card-title">{{ image.title|safe }}</h5>
                 <p class="card-text">Video link: <a href="{{ image.youtube_link }}">{{ image.youtube_link }}</a></p>
+                <a href="{{ url_for('edit_image', image_id=image.id, from_admin_route=True) }}" class="btn btn-outline-info float-left">
+                    <i class="bi bi-pencil-fill"></i>
+                </a>
                 <form method="POST">
                     {{ form.csrf_token }}
                     {{ form.image_id(value=image.id, class="form-control d-none") }}
@@ -30,7 +33,7 @@
                             {{ form.rejection_reason(class="form-control") }}
                         </div>
                     </div>
-                    <div class="row mt-2">
+                    <div class="row mt-2" style="display: flex;">
                         <div class="col-12">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>

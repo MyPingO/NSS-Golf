@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h1 class="mb-3 text-center">Edit Image</h1>
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.image.label }} {{ form.image(id="image", accept="image/*",
+                    class="form-control-file")
+                    }}
+                </div>
+                <div class="form-group">
+                    {{ form.youtube_link.label }} {{ form.youtube_link(id="youtube_link",
+                    class="form-control") }}
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.hole_number.label }} {{ form.hole_number(id="hole_number",
+                            class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.flag_position.label }} {{ form.flag_position(id="flag_position",
+                            class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.wind_direction.label }} {{ form.wind_direction(id="wind_direction",
+                            class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.wind_speed.label }} {{ form.wind_speed(id="wind_speed",
+                            class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.wind_speed_units.label }} {{
+                            form.wind_speed_units(id="wind_speed_units",
+                            class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.shot_distance.label }} {{ form.shot_distance(id="shot_distance",
+                            class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            {{ form.distance_units.label }} {{ form.distance_units(id="distance_units",
+                            class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+<script>
+    document.getElementById('edit-form').addEventListener('input', function (e) {
+        const target = e.target;
+        const id = target.id;
+
+        if (id === 'image') {
+            document.getElementById('card-image').src = URL.createObjectURL(target.files[0]);
+        } else if (id === 'youtube_link') {
+            document.getElementById('card-youtube-link').textContent = target.value;
+        } else if (id === 'hole_number') {
+            document.getElementById('card-hole-number').textContent = "Hole Number: " + target.value;
+        } else if (id === 'wind_speed') {
+            document.getElementById('card-wind-speed').textContent = "Wind Speed: " + target.value;
+        } else if (id === 'wind_direction') {
+            document.getElementById('card-wind-direction').textContent = "Wind Direction: " + target.value;
+        } else if (id === 'flag_position') {
+            document.getElementById('card-flag-position').textContent = "Flag Position: " + target.value;
+        } else if (id === 'shot_distance') {
+            document.getElementById('card-shot-distance').textContent = "Shot Distance: " + target.value;
+        } else if (id === 'wind_speed_units') {
+            document.getElementById('card-wind-speed-units').textContent = "Wind Speed Units: " + target.value;
+        } else if (id === 'distance_units') {
+            document.getElementById('card-distance-units').textContent = "Distance Units: " + target.value;
+        }
+    });
+</script>

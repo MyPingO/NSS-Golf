@@ -65,3 +65,15 @@ class AdminForm(FlaskForm):
     action = SelectField('Action', choices=[('Approve', 'Approve'), ('Reject', 'Reject')], validators=[DataRequired()])
     rejection_reason = TextAreaField('Rejection Reason', render_kw={'placeholder': 'Add a reason for rejection here.'})
     submit = SubmitField('Submit')
+
+class EditImageForm(FlaskForm):
+    image = FileField('Image', validators=[FileAllowed(images, 'Images only!')]) # Removed the FileRequired validator
+    youtube_link = StringField('YouTube Link')
+    hole_number = IntegerField('Hole Number', validators=[NumberRange(min=1, max=21, message='Hole number must be between 1 and 21.')])
+    wind_speed = IntegerField('Wind Speed', validators=[InputRequired(), NumberRange(min=0, max=54)])
+    wind_direction = SelectField('Wind Direction', choices=[('North','North'),('South','South'),('East','East'),('West','West'),('North-East','North-East'),('North-West','North-West'),('South-East','South-East'),('South-West','South-West'),('Center','Center')])
+    flag_position = SelectField('Flag Position', choices=[('North','North'),('South','South'),('East','East'),('West','West'),('North-East','North-East'),('North-West','North-West'),('South-East','South-East'),('South-West','South-West'),('Center','Center')])
+    shot_distance = FloatField('Shot Distance')
+    wind_speed_units = SelectField('Wind Speed Unit', choices=[('MPH','MPH'),('KM/H','KM/H'),('m/s', 'm/s')])
+    distance_units = SelectField('Distance Unit', choices=[('yd','Yards'),('ft', 'Feet'),('m','Meters')])
+    submit = SubmitField('Update Image')
