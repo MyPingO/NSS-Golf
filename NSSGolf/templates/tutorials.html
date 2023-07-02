@@ -20,7 +20,7 @@
             </div>
             <div class="card-footer">
                 <a href="{{ tutorial.video_link }}" target="_blank" class="btn btn-primary">Watch Video</a>
-                {% if current_user.is_authenticated}
+                {% if current_user.is_authenticated %}
                 <button class="like-button float-end {{ 'liked' if user_likes.get(tutorial.id) else '' }}" data-tutorial-id="{{ tutorial.id }}">
                     <i class="bi bi-hand-thumbs-up"></i>
                     <span id="like-count-{{ tutorial.id }}">{{ tutorial.like_count }}</span>
