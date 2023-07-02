@@ -14,29 +14,39 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 @app.route('/')
-def gallery():
-    images = Image.query.filter_by(approved=True).all()
+def home():
+    return redirect(url_for('gallery', page=1))
+
+@app.route('/gallery/<int:page>')
+def gallery(page=1):
+    per_page = 6
+    images = Image.query.filter_by(approved=True).paginate(page, per_page, error_out=False)
+    if images.pages < page:
+        if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            flash('No more images', 'error')
+            return redirect(url_for('gallery', page=1))
+        return "No more images", 404
     if current_user.is_authenticated:
         #dictionary comprehension to get all the liked images for the current user
-        user_likes = {image.id: image.is_liked_by(current_user) for image in images}
+        user_likes = {image.id: image.is_liked_by(current_user) for image in images.items}
         notifications = Notification.query.filter_by(user_id=current_user.id, read=False).all()
         for notification in notifications:
             db.session.delete(notification)
         db.session.commit()
-        return render_template('gallery.html', images=images, notifications=notifications, user_likes=user_likes, user=current_user)
-    return render_template('gallery.html', images=images, user=current_user)
+        return render_template('gallery.html', images=images.items, notifications=notifications, user_likes=user_likes, user=current_user)
+    return render_template('gallery.html', images=images.items, user=current_user)
 
 @app.route('/like_image/<int:image_id>', methods=['POST'])
 @login_required
 def like_image(image_id):
     if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
         flash("Can't go there!", 'error')
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
 
     image = Image.query.get(image_id)
     if not image:
         flash('Image not found.', 'error')
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
 
     # Check if user has already liked the image
     like = ImageLike.query.filter_by(user_id=current_user.id, image_id=image_id).first()
@@ -109,7 +119,7 @@ def about():
 def register():
     if current_user.is_authenticated:
         flash('You are already logged in.', 'danger')
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
     form = RegistrationForm()
     if form.validate_on_submit():
         User.create_user(form.username.data, form.password.data)
@@ -122,13 +132,13 @@ def register():
 def login():
     if current_user.is_authenticated:
         flash('You are already logged in.', 'danger')
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user, remember=True)
-            return redirect(url_for('gallery'))
+            return redirect(url_for('gallery', page=1))
         else:
             flash('Invalid username or password.')
     return render_template('login.html', form=form)
@@ -174,7 +184,7 @@ def upload():
         db.session.commit()
 
         flash('Image uploaded and is pending approval.')
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
     
     elif active_form == 'tutorial' and form_tutorial.validate_on_submit():
         new_tutorial = Tutorial(title=form_tutorial.title.data, video_link=form_tutorial.video_link.data, category=form_tutorial.category.data, user_id=current_user.id)
@@ -182,7 +192,7 @@ def upload():
         db.session.commit()
 
         flash('Tutorial uploaded and is pending approval.')
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
     
     
     return render_template('upload.html', form_shot=form_shot, form_tutorial=form_tutorial, active_form=active_form)
@@ -232,7 +242,7 @@ def delete_image_submission(image_id, from_admin_route=False):
     if from_admin_route:
         return "success"
     else:
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -284,7 +294,7 @@ def search():
 def admin():
     if not current_user.role_id == 2:
         flash('You are not an admin.', 'danger')
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
     form = AdminForm()
     if form.validate_on_submit():
         image = None
@@ -334,7 +344,7 @@ def admin():
 def edit_image(image_id):
     if not current_user.role_id == 2:
         flash('You are not an admin.', 'danger')
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
 
     image = Image.query.get_or_404(image_id)
     form = EditImageForm(obj=image)
@@ -363,7 +373,7 @@ def edit_image(image_id):
         if from_admin_route:
             flash('Edit successful.', 'success')
             return redirect(url_for('admin'))
-        return redirect(url_for('gallery'))
+        return redirect(url_for('gallery', page=1))
 
     return render_template('edit_image.html', form=form, image=image)
 
@@ -371,7 +381,7 @@ def edit_image(image_id):
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('gallery'))
+    return redirect(url_for('gallery', page=1))
 
 @app.route('/uploads/<filename>')
 def get_upload(filename):

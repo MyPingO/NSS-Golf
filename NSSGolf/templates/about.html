@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h1>About NSS Golf Perfect Shots Gallery</h1>
+<h1>About NSS Golf Shots Gallery</h1>
 
 <p>Welcome to the NSS Golf Perfect Shots Gallery project! This is an open-source web application that allows users to
-    view and share perfect score shots in NSS Golf. Perfect score shots are Hole in One (Par 3), Eagle (Par 4), and
+    view and share their perfect score shots for Nintendo Switch Sports Golf. Perfect score shots are Hole in One (Par 3), Eagle (Par 4), and
     Albatross (Par 5). Users can view the images in a grid card format on the gallery page, or can search for specific
     conditions on the <a href="search" target="_blank">search page</a>. Every image can be clicked to view in a larger size and contains
     associated video links for further content. You can submit an image to the site to exapnd the gallery and it will
@@ -18,14 +18,10 @@
     <li><strong>Browse the Gallery:</strong> The <a href="/" target="_blank">gallery page</a> is where you can see all the images uploaded to the site.
         Click on an image to view it in a larger size. Each video has its associated video link (YouTube, Vimeo, etc.).</li>
     <li><strong>Browse Community Tutorials</strong>If you want to become better at NSS Golf, consider checking out the <a href="tutorials" target="_blank">tutorials page.</a>These videos are made by the community, for the community!</li>
-    <li><strong>Uploading an Image:</strong> If you are logged in, you can <a href="upload" target="_blank">upload your own images.</a> Each image requires a
-        link to a video to verify the shot is as shown in the image. The image must show the swing of the shot and what
-        the minimap looked like. When performing a swing, the game hides the minimap. You must edit the photo to include
-        the minimap in the image. You will be asked to input the stats of the shot such as Wind Speed, Flag Position,
-        etc. Answer correctly, otherwise, the image will not be accepted. After submitting your image, an Admin will
-        review the submission and either accept or deny it.</li>
-    <li><strong>Delete an Image (Admins Only):</strong> If you're an admin, you can click the delete icon at the bottom
-        of an image to remove it from the gallery. You'll be asked to confirm this action since it's irreversible.</li>
+    <li><strong>Uploading a Shot:</strong> If you are logged in, you can <a href="upload" target="_blank">upload your shots!</a> If you make a mistake,
+        don't worry! An Admin will review the submission and edit it if necessary before accepting it. If even the Admin can't fix your submission, it will be rejected and the next
+        time you log on to the site, you'll see a message explaining how to resubmit your shot!</li>
+    <li><strong>Search for a Shot:</strong> If you're looking for a specific shot, or just want to filter the submissions, you can do so <a href="search" target="_blank">here!</a>
 </ol>
 
 <hr>
@@ -39,60 +35,13 @@
 
 <div id="devSection" class="collapse">
 
-    <h3>Project Structure</h3>
+    <p>After some consideration, we decided to make the git repository private. If you'd like to contribute to this project, please email nssgolfshots@gmail.com. </p>
 
-    <p>The project is a Flask application with the following structure:</p>
-
-    <pre>
-    /NSSGolf
-        /static
-          /CSS
-            main.css
-          /images
-        /templates
-            admin.html
-            index.html
-            layout.html
-            login.html
-            register.html
-            search.html
-            pload.html
-        __init__.py
-        forms.py
-        views.py
-        models.py
-        routes.py
-  </pre>
-
-    <h3>Contribution Guidelines</h3>
-
-    <p>If you'd like to contribute to this project, you're more than welcome! Please follow these steps at <a
-            href="https://github.com/MyPingO/NSS-Golf-Perfect-Shots-Gallery" target="_blank">our github page</a>:</p>
-
-    <ol>
-        <li><strong>Fork the Repository:</strong> Click the 'Fork' button at the top-right of this page to create a copy
-            of this repository on your GitHub account.</li>
-        <li><strong>Clone the Repository:</strong> Clone the repository to your local machine.</li>
-        <li><strong>Create a Branch:</strong> Create a new branch to contain your changes.</li>
-        <li><strong>Install dependencies:</strong> A requirements.txt file is provided, if you use pip, you can type
-            <code>pip install -r requirements.txt</code> in the console.
-        </li>
-        <li><strong>Make Your Changes:</strong> Update, fix, or add new features to the project.</li>
-        <li><strong>Test Your Changes:</strong> Make sure your changes are working correctly and don't introduce new
-            bugs.</li>
-        <li><strong>Push Your Changes:</strong> Push your changes to your GitHub repository.</li>
-        <li><strong>Submit a Pull Request:</strong> From your repository, click 'New pull request' and submit it.</li>
-    </ol>
-
-    <p>Please ensure your code is clean, well-commented, and well tested.</p>
-
-    <h3>Additional Information</h3>
+    <h4>Additional Information</h4>
 
     <p>This project is built with Flask, a lightweight WSGI web application framework. It's designed to make getting
         started quick and easy, with the ability to scale up to complex applications. <a
             href="https://flask.palletsprojects.com/en/2.3.x/" target="_blank">Learn more about Flask</a>.</p>
-
-    <p>If you need further information or have any questions, please feel free to open an issue on this repository.</p>
 
     <p>Thank you for your interest in our NSS Golf Perfect Shots Gallery project! We look forward to your contribution.
     </p>
@@ -119,10 +68,10 @@
 
 <hr>
 
-<h2>Join our Discord!</h2>
+<h2>Contact/Support</h2>
 <p>
-    We have a <a href="https://discord.gg/cUCvymUdpu" target="_blank">Discord server</a> where you can chat with other members of the community, share your shots, play together.
-    We'd love to have you join us!
+    If you have any questions, concerns, or suggestions, please feel free to reach out to us at
+    <a href="mailto:nssgolfshots@gmail.com">nssgolfshots@gmail.com</a> or on the NSS Golf Community <a href="https://discord.gg/cUCvymUdpu" target="_blank">Discord server</a>.
 </p>
 
 {% endblock %}

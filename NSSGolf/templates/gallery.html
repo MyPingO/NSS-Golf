@@ -20,7 +20,7 @@
     {% endif %}
     {% for image in images|reverse %}
     <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 mb-4">
-        <div class="card">
+        <div class="card" data-id="{{ image.id }}">
             <!-- Add a new data attribute for the image URL -->
             <img class="card-img-top img-trigger" src="{{ url_for('get_upload', filename=image.img_file) }}"
                 alt="{{ image.title }}" data-img-url="{{ url_for('get_upload', filename=image.img_file) }}"
@@ -128,25 +128,65 @@
     var deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
     var modalImg = document.getElementById('modalImage');
     var uploadedBy = document.getElementById('uploadedBy');
-    var imgTriggers = document.querySelectorAll('.img-trigger');
-    var deleteButtons = document.querySelectorAll('[data-bs-target="#deleteConfirmModal"]');
     var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
     var imageIdToDelete;
+    var imgTriggers;
+    var deleteButtons;
 
-    imgTriggers.forEach(function (img) {
-        img.addEventListener('click', function (event) {
-            modalImg.src = event.target.getAttribute('data-img-url');
-            uploadedBy.textContent = "Uploaded by: " + event.target.getAttribute('data-username');
-            imageModal.show();
-        });
-    });
+    // Function to Initialize event listeners
+    function initializeEventListeners() {
+        imgTriggers = document.querySelectorAll('.img-trigger');
+        deleteButtons = document.querySelectorAll('[data-bs-target="#deleteConfirmModal"]');
 
-    deleteButtons.forEach(function (btn) {
-        btn.addEventListener('click', function (event) {
-            imageIdToDelete = event.currentTarget.getAttribute('data-img-id'); // store the image id when a delete button is clicked
+        imgTriggers.forEach(function (img) {
+            img.addEventListener('click', function (event) {
+                modalImg.src = event.target.getAttribute('data-img-url');
+                uploadedBy.textContent = "Uploaded by: " + event.target.getAttribute('data-username');
+                imageModal.show();
+            });
         });
-    });
+
+        deleteButtons.forEach(function (btn) {
+            btn.addEventListener('click', function (event) {
+                imageIdToDelete = event.currentTarget.getAttribute('data-img-id');
+            });
+        });
+
+        // Like button listeners
+        document.querySelectorAll('.like-button[data-image-id]').forEach(button => {
+            button.addEventListener('click', function () {
+                const imageId = this.dataset.imageId;
+                fetch('/like_image/' + imageId, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        // If the response is 409, the user has already liked the image
+                        else if (response.status === 409) {
+                            this.classList.toggle('liked'); //get rid of 'liked' in the class name
+                            return;
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('like-count-' + imageId).innerText = data.like_count;
+                        this.classList.toggle('liked'); // add 'liked' to the class name
+                    })
+                    .catch(error => {
+                        console.error('There has been a problem with your fetch operation:', error);
+                    });
+            });
+        });
+    }
+
+    // Initial setup
+    initializeEventListeners();
 
     confirmDeleteBtn.onclick = function () {
         var deleteForm = document.getElementById('deleteForm' + imageIdToDelete);
@@ -165,35 +205,57 @@
         });
     });
 
-    // Select all like buttons
-    document.querySelectorAll('.like-button[data-image-id]').forEach(button => {
-        button.addEventListener('click', function () {
-            const imageId = this.dataset.imageId;
-            fetch('/like_image/' + imageId, {
-                method: 'POST',
+    let page = 1;
+    let isLoading = false;
+    let noMoreImages = false;
+
+    window.addEventListener('scroll', function () {
+        if (!isLoading && !noMoreImages && window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+            loadMoreImages();
+        }
+    });
+
+    function loadMoreImages() {
+        isLoading = true;
+        page++;
+
+        fetch(`/gallery/${page}`, {
+                method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    // If the response is 409, the user has already liked the image
-                    else if (response.status === 409) {
-                        this.classList.toggle('liked'); //get rid of 'liked' in the class name
-                        return;
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('like-count-' + imageId).innerText = data.like_count;
-                    this.classList.toggle('liked'); // add 'liked' to the class name
-                })
-                .catch(error => {
-                    console.error('There has been a problem with your fetch operation:', error);
-                });
-        });
-    });
+            .then(response => {
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.text();
+            })
+            .then(data => {
+                // Create a DOM from the data
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data, 'text/html');
+
+                // Get the image elements and append them to the current gallery
+                const newImages = doc.querySelector('.row').innerHTML;
+                document.querySelector('.row').innerHTML += newImages;
+
+                // Re-initialize the events
+                initializeEventListeners();
+
+                isLoading = false;
+            })
+            .catch(error => {
+                if (error.message === "NOT FOUND") {
+                    noMoreImages = true;  // Stop trying to load more images
+                } else {
+                    // Handle any other errors
+                    console.error('Error:', error);
+                }
+                isLoading = false;
+                page--;  // Decrement the page number so we don't skip a future image
+            });
+    }
+
 </script>
 {% endblock %}
