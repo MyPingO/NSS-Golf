@@ -399,3 +399,7 @@ def logout():
 @app.route('/uploads/<filename>')
 def get_upload(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory('static', 'sitemap.xml')
