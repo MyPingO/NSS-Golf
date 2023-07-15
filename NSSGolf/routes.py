@@ -19,7 +19,7 @@ def home():
 
 @app.route('/gallery/<int:page>')
 def gallery(page=1):
-    per_page = 6
+    per_page = 9
     images = Image.query.filter_by(approved=True).paginate(page, per_page, error_out=False)
     if images.pages < page:
         if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -173,8 +173,13 @@ def upload():
         unique_filename = f"{filename}_{timestamp}{extension}" # Add timestamp to filename to make it unique
         filepath = f"{app.config['UPLOAD_FOLDER']}/{unique_filename}"
         image.save(filepath)
+        hole_text = f'Hole {form_shot.hole_number.data}'
+        wind_text = f'{form_shot.wind_speed.data}{form_shot.wind_speed_units.data.upper()} Wind Going {form_shot.wind_direction.data}' if form_shot.wind_speed.data > 0 else 'No Wind'
+        flag_text = f'{form_shot.flag_position.data} Side Flag Position'
+        distance_text = f'Shot from {form_shot.shot_distance.data}{form_shot.distance_units.data} Away'
+
         #Markup makes the <br> work in the HTML
-        image_title = Markup(f'-Hole {form_shot.hole_number.data}<br>-{form_shot.wind_speed.data}{form_shot.wind_speed_units.data.upper()} Wind Going {form_shot.wind_direction.data}<br>-{form_shot.flag_position.data} Side Flag Position<br>-Shot from {form_shot.shot_distance.data}{form_shot.distance_units.data} Away')
+        image_title = Markup(f'-{hole_text}<br>-{wind_text}<br>-{flag_text}<br>-{distance_text}')
         new_image = Image(title=image_title, img_file=unique_filename, youtube_link=form_shot.youtube_link.data, 
                         hole_number=form_shot.hole_number.data, wind_speed=form_shot.wind_speed.data, wind_speed_units=form_shot.wind_speed_units.data, 
                         wind_direction=form_shot.wind_direction.data, flag_position=form_shot.flag_position.data,
@@ -365,7 +370,15 @@ def edit_image(image_id):
             form.image.data.save(filepath)
             image.img_file = unique_filename
         form.populate_obj(image)  # Update the image object with the form data
-        new_title = Markup(f'-Hole {form.hole_number.data}<br>-{form.wind_speed.data}{form.wind_speed_units.data.upper()} Wind Going {form.wind_direction.data}<br>-{form.flag_position.data} Side Flag Position<br>-Shot from {form.shot_distance.data}{form.distance_units.data} Away')
+
+        # Update the image title
+        hole_text = f'Hole {form.hole_number.data}'
+        wind_text = f'{form.wind_speed.data}{form.wind_speed_units.data.upper()} Wind Going {form.wind_direction.data}' if form.wind_speed.data > 0 else 'No Wind'
+        flag_text = f'{form.flag_position.data} Side Flag Position'
+        distance_text = f'Shot from {form.shot_distance.data}{form.distance_units.data} Away'
+
+        #Markup makes the <br> work in the HTML
+        new_title = Markup(f'-{hole_text}<br>-{wind_text}<br>-{flag_text}<br>-{distance_text}')
         image.title = new_title
         db.session.commit()
         flash('Image updated successfully.', 'success')
