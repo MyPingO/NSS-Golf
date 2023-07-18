@@ -83,31 +83,59 @@
                     </div>
                 </form>
                 <div class="row justify-content-center">
-                    <div class="">
-                        <div class="text-center">
-                            <b>Upload rules:</b>
-                            <p class="text-left d-inline-block text-start">
-                                1. Image must be a screenshot of the game in a 16:9 aspect ratio and in good quality.
-                                <br>
-                                2. Image must show the swing of the shot and what the minimap looked like. <br>
-                                <i>Note: The minimap is hidden when performing a swing. You must edit the photo to
-                                    include the
-                                    minimap in the
-                                    image. <br></i>
-                                4. The video link must be a link to a video on a public platform (YouTube, Vimeo, etc.)
-                                that
-                                verifies the shot shown in the image. <br>
-                                5. The stats of the shot must be entered correctly, otherwise, the image will not be
-                                accepted.
-                                <br>
-                                6. After submitting your image, an Admin will review the submission and either accept or
-                                deny
-                                it.
-                                <br>
-                            </p>
-                        </div>
+                    <div class="text-center">
+                        <b>Upload rules:</b>
+                        <p class="text-left d-inline-block text-start">
+                            1. Image must be a screenshot of the game in a 16:9 aspect ratio and in good quality.
+                            <br>
+                            2. Image must show the swing of the shot and what the minimap looked like. <br>
+                            <i>Note: The minimap is hidden when performing a swing. You must edit the photo to
+                                include the
+                                minimap in the
+                                image. <br></i>
+                            4. The video link must be a link to a video on a public platform (YouTube, Vimeo, etc.)
+                            that
+                            verifies the shot shown in the image. <br>
+                            5. The stats of the shot must be entered correctly, otherwise, the image will not be
+                            accepted.
+                            <br>
+                            6. After submitting your image, an Admin will review the submission and either accept or
+                            deny
+                            it.
+                            <br>
+                        </p>
                     </div>
                 </div>
+
+                <div class="text-center">
+                    <h2 data-bs-toggle="collapse" href="#uploadStepsContainer" role="button" aria-expanded="false"
+                        aria-controls="uploadStepsContainer" style="cursor:pointer;">
+                        <span>Don't know how to edit an image?</span>
+                        <i class="bi bi-chevron-right" id="uploadStepsArrow"></i>
+                    </h2>
+
+                </div>
+                <div id="uploadStepsContainer" class="collapse">
+                    <p class="text-center"> <b>Editing an image is very easy!</b>
+                    <div class="uploadSteps text-left text-start">
+                        1. Use a photo editing software such as <a href="https://www.photopea.com/" target="_blank">
+                            Photopea</a> and create a new project. <br><i>Some Acceptable image sizes are 1280x720,
+                            1920x1080, or any other 16:9 image resolutions </i> <br><br>
+                        2. Take a screenshot of your clip right <b>before</b> you take your shot so that the minimap,
+                        wind, shot distance, etc. is all shown <br><br>
+                        3. Paste your screenshot into your project<br><br>
+                        4. Take a second screenshot of your clip <b>after</b> you take your shot so that the power meter
+                        is shown. <br><i>Make sure your screenshot shows the correct power, wait half a second after your
+                            shot to let the power meter fill up properly</i> <br><br>
+                        5. Paste your second screenshot into your project <br><br>
+                        6. Crop your second screenshot (the power meter one) so that only the power meter remains <br><i>Try
+                            to put the meter to the correct location of the image (to the left of your
+                            character)</i><br><br>
+                        7. Save your image and upload it! <br><br>
+                    </div>
+                    </p>
+                </div>
+
                 {% elif active_form == 'tutorial' %}
                 <form method="POST" enctype="multipart/form-data">
                     {{ form_tutorial.hidden_tag() }}
@@ -149,4 +177,21 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var uploadStepsContainer = document.getElementById('uploadStepsContainer');
+    var uploadStepsArrow = document.getElementById('uploadStepsArrow');
+
+    uploadStepsContainer.addEventListener('show.bs.collapse', function () {
+        uploadStepsArrow.classList.remove('bi-chevron-right');
+        uploadStepsArrow.classList.add('bi-chevron-down');
+    });
+
+    uploadStepsContainer.addEventListener('hide.bs.collapse', function () {
+        uploadStepsArrow.classList.remove('bi-chevron-down');
+        uploadStepsArrow.classList.add('bi-chevron-right');
+    });
+</script>
 {% endblock %}
